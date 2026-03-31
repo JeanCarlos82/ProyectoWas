@@ -167,8 +167,8 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
 .add-set-btn{width:100%;padding:12px;background:transparent;border:1px dashed var(--border2);border-radius:8px;color:var(--muted2);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;cursor:pointer;margin-top:10px;margin-bottom:20px;-webkit-tap-highlight-color:transparent;transition:all 0.15s;}
 .add-set-btn:active{border-color:var(--accent);color:var(--accent);}
 
-.vol-summary{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:12px 0;}
-.vol-box{background:var(--card2);border-radius:8px;padding:10px 8px;text-align:center;}
+.vol-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0;justify-items:center;}
+.vol-box{background:var(--card2);border-radius:8px;padding:10px 6px;text-align:center;width:100%;}
 .vol-label{font-family:'DM Mono',monospace;font-size:7px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
 .vol-val{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--text);line-height:1;}
 

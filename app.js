@@ -628,7 +628,7 @@ function openModal(name,type){
   document.getElementById('nval').value='';document.getElementById('c-min').value='';document.getElementById('c-km').value='';
   document.getElementById('m-wsec').style.display=type==='cardio'?'none':'';
   document.getElementById('m-csec').style.display=type==='cardio'?'':'none';
-  document.getElementById('msub').textContent=type==='cardio'?'REGISTRA TU CARDIO':'SERIES DE HOY';
+  document.getElementById('msub').textContent=type==='cardio'?'REGISTRA TU CARDIO':'REGISTRA TU ENTRENAMIENTO';
   const ts=db.sessions.find(s=>s.date===today()),entry=ts?.entries?.find(e=>e.exercise===name),prev=prevEntry(name);
   const del=document.getElementById('dbtn');
   let hints='';
