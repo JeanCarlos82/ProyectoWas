@@ -1110,3 +1110,4 @@ if(!db.sessions.length)injectDemoData();
 
 // ── Init ──
 renderHeader();renderObj();renderHoy();startDurationInterval();
+if(typeof checkOnboarding==='function')checkOnboarding();

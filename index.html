@@ -132,6 +132,7 @@
         </div>
         <div class="drop-body" id="rutina-section">
           <div id="routine-days"></div>
+          <button class="wiz-relaunch-btn" onclick="showWizard()">GENERAR NUEVA RUTINA</button>
         </div>
       </div>
 
@@ -177,6 +178,14 @@
       <span class="nlbl">PERFIL</span>
     </div>
   </nav>
+</div>
+
+<!-- ONBOARDING WIZARD -->
+<div class="wizard-overlay" id="wizard-overlay" style="display:none">
+  <div class="wizard">
+    <div class="wizard-dots" id="wizard-dots"></div>
+    <div class="wizard-content" id="wizard-content"></div>
+  </div>
 </div>
 
 <!-- EXERCISE PICKER -->
@@ -240,6 +249,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="exercises-db.js"></script>
+<script src="onboarding.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
