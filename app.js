@@ -604,6 +604,25 @@ function loadProfile(){
   document.getElementById('p-name').value=p.name||'';document.getElementById('p-age').value=p.age||'';
   document.getElementById('p-height').value=p.height||'';document.getElementById('p-weight').value=p.weight||'';
   setSex(p.sex||'H',false);updateIMC();renderObj();renderTimerOpts();
+  renderProfileHeader();
+}
+function renderProfileHeader(){
+  const p=db.profile,el=document.getElementById('profile-header');
+  if(!el)return;
+  const name=p.name||'Usuario';
+  const totalSessions=db.sessions.filter(s=>s.entries?.length).length;
+  const totalExercises=getLoggedExercises().size;
+  const latestBW=db.bw.length?db.bw[db.bw.length-1].v:p.weight||'—';
+  const streak=calcStreak();
+
+  el.innerHTML=`
+    <div class="ph-greeting">Hola, <span class="ph-name">${name}</span></div>
+    <div class="ph-stats">
+      <div class="ph-stat"><span class="ph-stat-val">${latestBW}</span><span class="ph-stat-lbl">kg</span></div>
+      <div class="ph-stat"><span class="ph-stat-val">${totalSessions}</span><span class="ph-stat-lbl">sesiones</span></div>
+      <div class="ph-stat"><span class="ph-stat-val">${totalExercises}</span><span class="ph-stat-lbl">ejercicios</span></div>
+      <div class="ph-stat"><span class="ph-stat-val">${streak}</span><span class="ph-stat-lbl">racha</span></div>
+    </div>`;
 }
 function saveProfile(){
   db.profile={...db.profile,name:document.getElementById('p-name').value,age:document.getElementById('p-age').value,height:document.getElementById('p-height').value,weight:document.getElementById('p-weight').value};
@@ -916,10 +935,6 @@ function toggleDrop(id){
   const body=document.getElementById(id),arrow=document.getElementById('arrow-'+id);
   body.classList.toggle('open');
   if(arrow)arrow.style.transform=body.classList.contains('open')?'rotate(90deg)':'';
-  // Re-render BW chart when its dropdown opens (canvas needs visible dimensions)
-  if(id==='datos-section'&&body.classList.contains('open')){
-    setTimeout(()=>{renderBWChart();updateIMC();},50);
-  }
 }
 
 // ── Feedback ──
@@ -1046,7 +1061,7 @@ function switchView(name,el){
   if(name==='hoy'){startDurationInterval();}else{stopDurationInterval();}
   if(name==='hist')renderHist();
   if(name==='prog')renderProg();
-  if(name==='perfil'){loadProfile();renderRutina();setTimeout(renderBWChart,100);}
+  if(name==='perfil'){loadProfile();renderBWChart();renderRutina();}
 }
 
 // ── PWA Install ──

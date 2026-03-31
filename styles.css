@@ -301,6 +301,15 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .obj-opt.active .obj-opt-l{color:var(--accent);}
 .obj-opt.active .obj-opt-s{color:rgba(232,255,58,0.5);}
 
+/* ── PROFILE HEADER ── */
+.profile-header{margin-bottom:12px;}
+.ph-greeting{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:10px;}
+.ph-name{color:var(--accent);}
+.ph-stats{display:flex;gap:6px;}
+.ph-stat{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;}
+.ph-stat-val{font-family:'Bebas Neue',sans-serif;font-size:22px;display:block;line-height:1;color:var(--text);}
+.ph-stat-lbl{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.5px;}
+
 /* ── HEALTH METRICS ── */
 .health-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
 .health-card{background:var(--card2);border-radius:10px;padding:12px 10px;text-align:center;}

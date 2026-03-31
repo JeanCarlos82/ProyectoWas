@@ -101,6 +101,42 @@
     <!-- PERFIL -->
     <div class="view" id="view-perfil">
 
+      <!-- Greeting + quick stats (always visible) -->
+      <div class="profile-header" id="profile-header"></div>
+
+      <!-- Peso corporal (most used - always visible) -->
+      <div class="psec">
+        <div class="plbl">REGISTRAR PESO</div>
+        <div class="bw-row">
+          <div class="bw-wrap"><input class="bwinput" type="number" id="bw-val" placeholder="75.5" step="0.1" min="30" max="300"><span class="bwunit">kg</span></div>
+          <button class="bw-addbtn" onclick="logBW()">+</button>
+        </div>
+        <div class="bw-chart-box">
+          <div class="bw-chart-empty" id="bw-empty">Sin registros aún</div>
+          <div class="bw-canvas-wrap" style="display:none;height:120px;position:relative" id="bw-chart-wrap"><canvas id="bw-chart"></canvas></div>
+        </div>
+        <div class="bw-hist" id="bw-hist"></div>
+      </div>
+
+      <!-- Métricas de salud (visible, useful reference) -->
+      <div class="psec">
+        <div class="plbl" style="margin-bottom:8px">MÉTRICAS DE SALUD</div>
+        <div id="imc-wrap"><div style="color:var(--muted2);font-size:11px;text-align:center;padding:10px 0;font-family:'DM Mono',monospace">Completa tus datos para ver métricas</div></div>
+      </div>
+
+      <!-- Mi Rutina (dropdown) -->
+      <div class="psec drop-card">
+        <div class="drop-header" onclick="toggleDrop('rutina-section')">
+          <span class="drop-title">MI RUTINA</span>
+          <span class="drop-arrow" id="arrow-rutina-section">›</span>
+        </div>
+        <div class="drop-body" id="rutina-section">
+          <div id="routine-days"></div>
+          <button class="wiz-relaunch-btn" onclick="showWizard()">GENERAR NUEVA RUTINA</button>
+        </div>
+      </div>
+
+      <!-- Datos personales (dropdown - configured once) -->
       <div class="psec drop-card">
         <div class="drop-header" onclick="toggleDrop('datos-section')">
           <span class="drop-title">DATOS PERSONALES</span>
@@ -116,33 +152,10 @@
             <div class="pfield"><div class="plbl">ALTURA (cm)</div><input class="pinput pnum" type="number" id="p-height" placeholder="175" min="100" max="230" oninput="saveProfile();updateIMC()"></div>
             <div class="pfield"><div class="plbl">PESO (kg)</div><input class="pinput pnum" type="number" id="p-weight" placeholder="75" min="30" max="300" step="0.1" oninput="saveProfile();updateIMC()"></div>
           </div>
-          <div id="imc-wrap" style="margin-top:8px"><div style="color:var(--muted2);font-size:10px;text-align:center;padding:10px 0;font-family:'DM Mono',monospace">Completa altura y peso arriba</div></div>
-          <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:10px">
-            <div class="plbl">REGISTRO DE PESO</div>
-            <div class="bw-row">
-              <div class="bw-wrap"><input class="bwinput" type="number" id="bw-val" placeholder="75.5" step="0.1" min="30" max="300"><span class="bwunit">kg</span></div>
-              <button class="bw-addbtn" onclick="logBW()">+</button>
-            </div>
-            <div class="bw-chart-box">
-              <div class="bw-chart-empty" id="bw-empty">Sin registros aún</div>
-              <div class="bw-canvas-wrap" style="display:none;height:120px;position:relative" id="bw-chart-wrap"><canvas id="bw-chart"></canvas></div>
-            </div>
-            <div class="bw-hist" id="bw-hist"></div>
-          </div>
         </div>
       </div>
 
-      <div class="psec drop-card">
-        <div class="drop-header" onclick="toggleDrop('rutina-section')">
-          <span class="drop-title">MI RUTINA</span>
-          <span class="drop-arrow" id="arrow-rutina-section">›</span>
-        </div>
-        <div class="drop-body" id="rutina-section">
-          <div id="routine-days"></div>
-          <button class="wiz-relaunch-btn" onclick="showWizard()">GENERAR NUEVA RUTINA</button>
-        </div>
-      </div>
-
+      <!-- App (dropdown) -->
       <div class="psec drop-card">
         <div class="drop-header" onclick="toggleDrop('app-section')">
           <span class="drop-title">APP</span>
@@ -150,7 +163,7 @@
         </div>
         <div class="drop-body" id="app-section">
           <div style="text-align:center;padding:0 0 10px">
-            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);margin-bottom:8px">Ayúdanos a mejorar la app</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);margin-bottom:8px">Ayúdanos a mejorar la app</div>
             <button class="feedback-btn" onclick="openFeedback()">ENVIAR FEEDBACK</button>
           </div>
           <div style="border-top:1px solid var(--border);padding-top:10px">
@@ -159,7 +172,7 @@
               <label class="backup-btn imp" style="cursor:pointer"><div class="backup-lbl">IMPORTAR</div><div class="backup-sub">Restaurar JSON</div><input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
             </div>
             <button class="install-btn" id="install-btn" onclick="installPWA()" style="display:none">INSTALAR APP</button>
-          <button class="dbtn" onclick="if(confirm('Esto borrará todos tus datos y cargará datos de demo. ¿Continuar?'))loadDemo()" style="margin-top:7px;font-size:11px">CARGAR DATOS DEMO</button>
+            <button class="dbtn" onclick="if(confirm('Esto borrará todos tus datos y cargará datos de demo. ¿Continuar?'))loadDemo()" style="margin-top:7px;font-size:11px">CARGAR DATOS DEMO</button>
           </div>
         </div>
       </div>
@@ -255,8 +268,8 @@
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="exercises-db.js?v=32"></script>
-<script src="onboarding.js?v=32"></script>
-<script src="app.js?v=32"></script>
+<script src="exercises-db.js?v=33"></script>
+<script src="onboarding.js?v=33"></script>
+<script src="app.js?v=33"></script>
 </body>
 </html>
