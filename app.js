@@ -767,33 +767,110 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 
-// ── TEST DATA (remove after testing) ──
-(function injectTestData(){
-  if(db.sessions.length>0)return; // Don't inject if user already has data
-  const t=today();
+// ── DEMO DATA (remove after testing) ──
+(function injectDemoData(){
+  if(db.sessions.length>0)return;
   const d=n=>{const dd=new Date();dd.setDate(dd.getDate()-n);return dd.toISOString().split('T')[0];};
   const dk=n=>{const dd=new Date();dd.setDate(dd.getDate()-n);return DK[dd.getDay()];};
+  const ts=n=>{const dd=new Date();dd.setDate(dd.getDate()-n);dd.setHours(17,0,0);return dd.toISOString();};
+  const te=n=>{const dd=new Date();dd.setDate(dd.getDate()-n);dd.setHours(18,15,0);return dd.toISOString();};
+
+  // Profile
+  db.profile={name:'Carlos',age:'25',sex:'H',height:'178',weight:'78',restTimerSeconds:90};
+  ps('gym_profile',db.profile);
+
+  // Objective
+  db.objective='hipertrofia';
+  ps('gym_objective',db.objective);
+
+  // Body weight history (last 4 weeks)
+  db.bw=[
+    {date:d(28),v:76.2},{date:d(21),v:76.8},{date:d(14),v:77.3},
+    {date:d(7),v:77.5},{date:d(3),v:77.8},{date:d(0),v:78}
+  ];
+  ps('gym_bw',db.bw);
+
+  // Sessions — 3 weeks of training with progressive overload
   db.sessions=[
-    {date:d(6),dayKey:dk(6),entries:[
-      {exercise:"Press banca",type:"pesas",sets:[{w:50,r:10},{w:50,r:8},{w:45,r:10}],unit:"kg"},
-      {exercise:"Press inclinado",type:"pesas",sets:[{w:35,r:10},{w:35,r:8}],unit:"kg"}
-    ],startTime:new Date(new Date().setDate(new Date().getDate()-6)).toISOString()},
-    {date:d(5),dayKey:dk(5),entries:[
-      {exercise:"Jalón al pecho",type:"pesas",sets:[{w:45,r:10},{w:45,r:9},{w:42.5,r:10}],unit:"kg"},
-      {exercise:"Curl con barra",type:"pesas",sets:[{w:25,r:10},{w:25,r:8}],unit:"kg"}
-    ],startTime:new Date(new Date().setDate(new Date().getDate()-5)).toISOString()},
-    {date:d(4),dayKey:dk(4),entries:[
-      {exercise:"Press militar",type:"pesas",sets:[{w:30,r:10},{w:30,r:8}],unit:"kg"},
-      {exercise:"Elevaciones laterales",type:"pesas",sets:[{w:10,r:12},{w:10,r:10}],unit:"kg"}
-    ],startTime:new Date(new Date().setDate(new Date().getDate()-4)).toISOString()},
-    {date:d(3),dayKey:dk(3),entries:[
-      {exercise:"Sentadilla",type:"pesas",sets:[{w:60,r:8},{w:65,r:6},{w:55,r:10}],unit:"kg"},
-      {exercise:"Prensa de pierna",type:"pesas",sets:[{w:100,r:10},{w:100,r:8}],unit:"kg"}
-    ],startTime:new Date(new Date().setDate(new Date().getDate()-3)).toISOString()},
-    {date:d(1),dayKey:dk(1),entries:[
-      {exercise:"Press banca",type:"pesas",sets:[{w:52.5,r:10},{w:52.5,r:8},{w:50,r:10}],unit:"kg"},
-      {exercise:"Press inclinado",type:"pesas",sets:[{w:37.5,r:10},{w:37.5,r:8}],unit:"kg"}
-    ],startTime:new Date(new Date().setDate(new Date().getDate()-1)).toISOString()},
+    // Week 3 (oldest)
+    {date:d(20),dayKey:dk(20),startTime:ts(20),endTime:te(20),entries:[
+      {exercise:"Press banca",type:"pesas",sets:[{w:45,r:10,warmup:true},{w:60,r:10},{w:60,r:8},{w:57.5,r:10}],unit:"kg"},
+      {exercise:"Press inclinado",type:"pesas",sets:[{w:40,r:10},{w:40,r:8},{w:37.5,r:10}],unit:"kg"},
+      {exercise:"Aperturas mancuernas",type:"pesas",sets:[{w:14,r:12},{w:14,r:10}],unit:"kg"},
+      {exercise:"Press francés",type:"pesas",sets:[{w:25,r:10},{w:25,r:8}],unit:"kg"}
+    ]},
+    {date:d(19),dayKey:dk(19),startTime:ts(19),endTime:te(19),entries:[
+      {exercise:"Jalón al pecho",type:"pesas",sets:[{w:50,r:10},{w:50,r:8},{w:47.5,r:10}],unit:"kg"},
+      {exercise:"Remo con barra",type:"pesas",sets:[{w:45,r:10},{w:45,r:8}],unit:"kg"},
+      {exercise:"Curl con barra",type:"pesas",sets:[{w:25,r:10},{w:25,r:8},{w:22.5,r:10}],unit:"kg"}
+    ]},
+    {date:d(18),dayKey:dk(18),startTime:ts(18),endTime:te(18),entries:[
+      {exercise:"Press militar",type:"pesas",sets:[{w:30,r:10},{w:30,r:8},{w:27.5,r:10}],unit:"kg"},
+      {exercise:"Elevaciones laterales",type:"pesas",sets:[{w:10,r:12},{w:10,r:12},{w:10,r:10}],unit:"kg"},
+      {exercise:"Pájaros",type:"pesas",sets:[{w:8,r:12},{w:8,r:10}],unit:"kg"}
+    ]},
+    {date:d(17),dayKey:dk(17),startTime:ts(17),endTime:te(17),entries:[
+      {exercise:"Sentadilla",type:"pesas",sets:[{w:40,r:8,warmup:true},{w:70,r:8},{w:70,r:6},{w:65,r:8}],unit:"kg"},
+      {exercise:"Prensa de pierna",type:"pesas",sets:[{w:100,r:10},{w:100,r:8}],unit:"kg"},
+      {exercise:"Curl femoral",type:"pesas",sets:[{w:35,r:10},{w:35,r:8}],unit:"kg"},
+      {exercise:"Pantorrillas",type:"pesas",sets:[{w:60,r:15},{w:60,r:12}],unit:"kg"}
+    ]},
+    // Week 2
+    {date:d(13),dayKey:dk(13),startTime:ts(13),endTime:te(13),entries:[
+      {exercise:"Press banca",type:"pesas",sets:[{w:45,r:8,warmup:true},{w:62.5,r:10},{w:62.5,r:8},{w:60,r:10}],unit:"kg"},
+      {exercise:"Press inclinado",type:"pesas",sets:[{w:42.5,r:10},{w:42.5,r:8},{w:40,r:10}],unit:"kg"},
+      {exercise:"Aperturas mancuernas",type:"pesas",sets:[{w:14,r:12},{w:14,r:12}],unit:"kg"},
+      {exercise:"Press francés",type:"pesas",sets:[{w:27.5,r:10},{w:27.5,r:8}],unit:"kg"}
+    ]},
+    {date:d(12),dayKey:dk(12),startTime:ts(12),endTime:te(12),entries:[
+      {exercise:"Jalón al pecho",type:"pesas",sets:[{w:52.5,r:10},{w:52.5,r:8},{w:50,r:10}],unit:"kg"},
+      {exercise:"Remo con barra",type:"pesas",sets:[{w:47.5,r:10},{w:47.5,r:8}],unit:"kg"},
+      {exercise:"Curl con barra",type:"pesas",sets:[{w:27.5,r:10},{w:27.5,r:8},{w:25,r:10}],unit:"kg"}
+    ]},
+    {date:d(11),dayKey:dk(11),startTime:ts(11),endTime:te(11),entries:[
+      {exercise:"Press militar",type:"pesas",sets:[{w:32.5,r:10},{w:32.5,r:8},{w:30,r:10}],unit:"kg"},
+      {exercise:"Elevaciones laterales",type:"pesas",sets:[{w:12,r:12},{w:12,r:10},{w:10,r:12}],unit:"kg"},
+      {exercise:"Pájaros",type:"pesas",sets:[{w:10,r:12},{w:10,r:10}],unit:"kg"}
+    ]},
+    {date:d(10),dayKey:dk(10),startTime:ts(10),endTime:te(10),entries:[
+      {exercise:"Sentadilla",type:"pesas",sets:[{w:40,r:8,warmup:true},{w:75,r:8},{w:75,r:6},{w:70,r:8}],unit:"kg"},
+      {exercise:"Prensa de pierna",type:"pesas",sets:[{w:110,r:10},{w:110,r:8}],unit:"kg"},
+      {exercise:"Curl femoral",type:"pesas",sets:[{w:37.5,r:10},{w:37.5,r:8}],unit:"kg"},
+      {exercise:"Pantorrillas",type:"pesas",sets:[{w:65,r:15},{w:65,r:12}],unit:"kg"}
+    ]},
+    {date:d(9),dayKey:dk(9),startTime:ts(9),endTime:te(9),entries:[
+      {exercise:"Curl concentrado",type:"pesas",sets:[{w:12,r:10},{w:12,r:8}],unit:"kg"},
+      {exercise:"Tríceps en polea",type:"pesas",sets:[{w:25,r:12},{w:25,r:10}],unit:"kg"}
+    ]},
+    // Week 1 (most recent)
+    {date:d(6),dayKey:dk(6),startTime:ts(6),endTime:te(6),entries:[
+      {exercise:"Press banca",type:"pesas",sets:[{w:45,r:8,warmup:true},{w:65,r:10},{w:65,r:9},{w:62.5,r:10}],unit:"kg",notes:"Buen día, se sintió liviano"},
+      {exercise:"Press inclinado",type:"pesas",sets:[{w:45,r:10},{w:45,r:8},{w:42.5,r:10}],unit:"kg"},
+      {exercise:"Aperturas mancuernas",type:"pesas",sets:[{w:16,r:12},{w:16,r:10}],unit:"kg"},
+      {exercise:"Press francés",type:"pesas",sets:[{w:30,r:10},{w:30,r:8}],unit:"kg"}
+    ]},
+    {date:d(5),dayKey:dk(5),startTime:ts(5),endTime:te(5),entries:[
+      {exercise:"Jalón al pecho",type:"pesas",sets:[{w:55,r:10},{w:55,r:8},{w:52.5,r:10}],unit:"kg"},
+      {exercise:"Remo con barra",type:"pesas",sets:[{w:50,r:10},{w:50,r:8}],unit:"kg"},
+      {exercise:"Curl con barra",type:"pesas",sets:[{w:30,r:10},{w:30,r:8},{w:27.5,r:10}],unit:"kg",notes:"PR en curl"}
+    ]},
+    {date:d(4),dayKey:dk(4),startTime:ts(4),endTime:te(4),entries:[
+      {exercise:"Press militar",type:"pesas",sets:[{w:35,r:10},{w:35,r:8},{w:32.5,r:10}],unit:"kg"},
+      {exercise:"Elevaciones laterales",type:"pesas",sets:[{w:12,r:14},{w:12,r:12},{w:12,r:10}],unit:"kg"},
+      {exercise:"Pájaros",type:"pesas",sets:[{w:10,r:14},{w:10,r:12}],unit:"kg"}
+    ]},
+    {date:d(3),dayKey:dk(3),startTime:ts(3),endTime:te(3),entries:[
+      {exercise:"Sentadilla",type:"pesas",sets:[{w:40,r:8,warmup:true},{w:80,r:8},{w:80,r:6},{w:75,r:8}],unit:"kg",notes:"Nuevo PR 80kg!"},
+      {exercise:"Prensa de pierna",type:"pesas",sets:[{w:120,r:10},{w:120,r:8}],unit:"kg"},
+      {exercise:"Curl femoral",type:"pesas",sets:[{w:40,r:10},{w:40,r:8}],unit:"kg"},
+      {exercise:"Pantorrillas",type:"pesas",sets:[{w:70,r:15},{w:70,r:12}],unit:"kg"}
+    ]},
+    {date:d(1),dayKey:dk(1),startTime:ts(1),endTime:te(1),entries:[
+      {exercise:"Curl concentrado",type:"pesas",sets:[{w:14,r:10},{w:14,r:8}],unit:"kg"},
+      {exercise:"Curl en polea",type:"pesas",sets:[{w:20,r:12},{w:20,r:10}],unit:"kg"},
+      {exercise:"Tríceps en polea",type:"pesas",sets:[{w:27.5,r:12},{w:27.5,r:10}],unit:"kg"},
+      {exercise:"Patada de tríceps",type:"pesas",sets:[{w:10,r:12},{w:10,r:10}],unit:"kg"}
+    ]},
   ];
   ps('gym_sessions',db.sessions);
 })();
