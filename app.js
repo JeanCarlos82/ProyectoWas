@@ -1030,7 +1030,18 @@ function openModal(name,type){
       if(suggestion)hints+=`<div class="mhint ${suggestion.color}"><span class="mhint-l">${suggestion.reason}</span><span class="mhint-v ${suggestion.color}">${suggestion.msg}</span></div>`;
     }
     let prevBlock='';
-    if(prev?.sets?.length){const rows=prev.sets.map((s,i)=>`<div class="prev-set-row"><span class="prev-set-num">${i+1}</span><span class="prev-set-val ${s.warmup?'prev-warm':''}">${s.w}${prev.unit||'kg'}</span><span class="prev-set-x">×</span><span class="prev-set-val">${s.r} reps</span>${s.warmup?'<span style="font-size:7px;color:var(--muted)"> C</span>':''}</div>`).join('');prevBlock=`<div class="prev-sets-block"><div class="prev-sets-label">ÚLTIMA SESIÓN</div>${rows}</div>`;}
+    if(prev?.sets?.length){
+      // Find date of prev session
+      const prevSess=db.sessions.find(s=>s.entries?.some(e=>e.exercise===name)&&s.date!==today());
+      const prevDate=prevSess?fmtD(prevSess.date):'';
+      // Calc averages from last 3 sessions
+      const last3=getLastEntries(name,3);
+      const avgWeight=last3.length?Math.round(last3.reduce((a,e)=>a+(entryMaxWeight(e)||0),0)/last3.length*10)/10:0;
+      const avgVol=last3.length?Math.round(last3.reduce((a,e)=>a+entryVolume(e),0)/last3.length):0;
+      const rows=prev.sets.map((s,i)=>`<div class="prev-set-row"><span class="prev-set-num">${i+1}</span><span class="prev-set-val ${s.warmup?'prev-warm':''}">${s.w}${prev.unit||'kg'}</span><span class="prev-set-x">×</span><span class="prev-set-val">${s.r} reps</span>${s.warmup?'<span style="font-size:9px;color:var(--muted)"> C</span>':''}</div>`).join('');
+      const avgLine=last3.length>=2?`<div class="prev-avg">Promedio últimas ${last3.length}: <strong>${avgWeight}${prev.unit||'kg'}</strong> · ${avgVol}kg vol</div>`:'';
+      prevBlock=`<div class="prev-sets-block"><div class="prev-sets-label">TU REFERENCIA${prevDate?' · '+prevDate:''}</div>${rows}${avgLine}</div>`;
+    }
     document.getElementById('prev-sets-block').innerHTML=prevBlock;
     if(entry?.sets?.length){currentSets=entry.sets.map(s=>({w:s.w,r:s.r,warmup:!!s.warmup}));if(entry.unit)setUnit(entry.unit);}
     else if(prev?.sets?.length){currentSets=prev.sets.map(s=>({w:s.w,r:s.r,warmup:!!s.warmup}));setUnit(prev.unit||'kg');}

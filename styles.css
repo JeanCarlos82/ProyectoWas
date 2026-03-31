@@ -173,6 +173,8 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .prev-set-row{display:flex;align-items:center;gap:6px;padding:3px 0;}
 .prev-set-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);width:16px;}
 .prev-set-val{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--muted2);}
+.prev-avg{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);line-height:1.5;}
+.prev-avg strong{color:var(--accent);font-weight:600;}
 .prev-set-x{font-size:11px;color:var(--muted);margin:0 1px;}
 
 /* Set rows: 2-line layout for better mobile fit */
