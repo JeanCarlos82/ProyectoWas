@@ -85,36 +85,24 @@
     <!-- PERFIL -->
     <div class="view" id="view-perfil">
 
-      <div class="slbl">DATOS PERSONALES</div>
-      <div class="psec">
-        <div class="pfield"><div class="plbl">NOMBRE</div><input class="pinput" type="text" id="p-name" placeholder="Tu nombre" oninput="saveProfile()"></div>
-        <div class="p2">
-          <div class="pfield"><div class="plbl">EDAD</div><input class="pinput pnum" type="number" id="p-age" placeholder="25" min="10" max="99" oninput="saveProfile()"></div>
-          <div class="pfield"><div class="plbl">SEXO</div><div class="sex-row"><div class="sex-btn active" id="sex-h" onclick="setSex('H')">HOMBRE</div><div class="sex-btn" id="sex-m" onclick="setSex('M')">MUJER</div></div></div>
+      <div class="psec drop-card">
+        <div class="drop-header" onclick="toggleDrop('datos-section')">
+          <span class="drop-title">DATOS PERSONALES</span>
+          <span class="drop-arrow" id="arrow-datos-section">›</span>
         </div>
-        <div class="p2">
-          <div class="pfield"><div class="plbl">ALTURA (cm)</div><input class="pinput pnum" type="number" id="p-height" placeholder="175" min="100" max="230" oninput="saveProfile();updateIMC()"></div>
-          <div class="pfield"><div class="plbl">PESO (kg)</div><input class="pinput pnum" type="number" id="p-weight" placeholder="75" min="30" max="300" step="0.1" oninput="saveProfile();updateIMC()"></div>
-        </div>
-
-        <!-- IMC desplegable -->
-        <div class="drop-section">
-          <div class="drop-header" onclick="toggleDrop('imc-section')">
-            <span class="drop-title">IMC / PESO IDEAL</span>
-            <span class="drop-arrow" id="arrow-imc-section">›</span>
+        <div class="drop-body" id="datos-section">
+          <div class="pfield"><div class="plbl">NOMBRE</div><input class="pinput" type="text" id="p-name" placeholder="Tu nombre" oninput="saveProfile()"></div>
+          <div class="p2">
+            <div class="pfield"><div class="plbl">EDAD</div><input class="pinput pnum" type="number" id="p-age" placeholder="25" min="10" max="99" oninput="saveProfile()"></div>
+            <div class="pfield"><div class="plbl">SEXO</div><div class="sex-row"><div class="sex-btn active" id="sex-h" onclick="setSex('H')">HOMBRE</div><div class="sex-btn" id="sex-m" onclick="setSex('M')">MUJER</div></div></div>
           </div>
-          <div class="drop-body" id="imc-section">
-            <div id="imc-wrap"><div style="color:var(--muted2);font-size:10px;text-align:center;padding:10px 0;font-family:'DM Mono',monospace">Completa altura y peso arriba</div></div>
+          <div class="p2">
+            <div class="pfield"><div class="plbl">ALTURA (cm)</div><input class="pinput pnum" type="number" id="p-height" placeholder="175" min="100" max="230" oninput="saveProfile();updateIMC()"></div>
+            <div class="pfield"><div class="plbl">PESO (kg)</div><input class="pinput pnum" type="number" id="p-weight" placeholder="75" min="30" max="300" step="0.1" oninput="saveProfile();updateIMC()"></div>
           </div>
-        </div>
-
-        <!-- Peso corporal desplegable -->
-        <div class="drop-section" style="margin-bottom:0">
-          <div class="drop-header" onclick="toggleDrop('bw-section')">
-            <span class="drop-title">REGISTRO DE PESO</span>
-            <span class="drop-arrow" id="arrow-bw-section">›</span>
-          </div>
-          <div class="drop-body" id="bw-section">
+          <div id="imc-wrap" style="margin-top:8px"><div style="color:var(--muted2);font-size:10px;text-align:center;padding:10px 0;font-family:'DM Mono',monospace">Completa altura y peso arriba</div></div>
+          <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:10px">
+            <div class="plbl">REGISTRO DE PESO</div>
             <div class="bw-row">
               <div class="bw-wrap"><input class="bwinput" type="number" id="bw-val" placeholder="75.5" step="0.1" min="30" max="300"><span class="bwunit">kg</span></div>
               <button class="bw-addbtn" onclick="logBW()">+</button>
