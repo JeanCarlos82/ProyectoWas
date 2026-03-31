@@ -353,8 +353,9 @@ function renderHist(){
     if(!mo.weeks.has(wk.key))mo.weeks.set(wk.key,{label:weekLabel,sessions:[]});
     mo.weeks.get(wk.key).sessions.push(sess);
   });
-  let html='';
+  let html='';let mi=0;
   months.forEach((mo,monthKey)=>{
+    const isFirst=mi===0;
     const totalSess=[...mo.weeks.values()].reduce((a,w)=>a+w.sessions.length,0);
     html+=`<div class="hist-month-block">
       <div class="hist-month-hdr" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.hist-month-arrow').classList.toggle('rot')">
@@ -362,9 +363,9 @@ function renderHist(){
           <span class="hist-month-name">${mo.label}</span>
           <span class="hist-month-count">${totalSess} sesiones</span>
         </div>
-        <span class="hist-month-arrow">›</span>
+        <span class="hist-month-arrow ${isFirst?'rot':''}">›</span>
       </div>
-      <div class="hist-month-body">`;
+      <div class="hist-month-body ${isFirst?'open':''}">`;
     mo.weeks.forEach(wk=>{
       html+=`<div class="hist-week"><span class="hist-week-dates">${wk.label}</span><span class="hist-week-count">${wk.sessions.length} sesiones</span></div>`;
       html+=`<div class="sess-list-inner">${wk.sessions.map(renderSessCard).join('')}</div>`;
