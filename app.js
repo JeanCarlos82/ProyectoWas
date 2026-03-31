@@ -376,15 +376,13 @@ function renderHist(){
   list.innerHTML=html;
 }
 
-let selZone=null,selMuscle=null;
+let progPeriodDays=7;
 
-// Get exercises the user has actually logged
 function getLoggedExercises(){
   const names=new Set();
   db.sessions.forEach(s=>s.entries?.forEach(e=>names.add(e.exercise)));
   return names;
 }
-// Get last N unique exercises from sessions (most recent first)
 function getRecentExercises(n=5){
   const seen=new Set(),result=[];
   const sorted=[...db.sessions].sort((a,b)=>b.date.localeCompare(a.date));
@@ -397,69 +395,119 @@ function getRecentExercises(n=5){
   return result;
 }
 
+function setProgPeriod(days){
+  progPeriodDays=days;
+  document.querySelectorAll('.prog-period').forEach(el=>el.classList.toggle('active',parseInt(el.dataset.days)===days));
+  renderProg();
+}
+
+function getSessionsInPeriod(){
+  if(progPeriodDays===0)return db.sessions.filter(s=>s.entries?.length>0);
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-progPeriodDays);
+  const cutoffStr=cutoff.toISOString().split('T')[0];
+  return db.sessions.filter(s=>s.entries?.length>0&&s.date>=cutoffStr);
+}
+
+function getExerciseTrend(name){
+  // Get last 3 sessions with this exercise, compute trend
+  const sessions=db.sessions.filter(s=>s.entries?.some(e=>e.exercise===name)).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,3);
+  if(sessions.length<2)return'new';
+  const weights=sessions.map(s=>{const e=s.entries.find(e=>e.exercise===name);return entryMaxWeight(e)||0;});
+  if(weights[0]>weights[1])return'up';
+  if(weights[0]<weights[1])return'down';
+  return'stable';
+}
+
+function findRecentPRs(limit=5){
+  const prs=[];
+  const bestByExercise={};
+  const sorted=[...db.sessions].sort((a,b)=>a.date.localeCompare(b.date));
+  sorted.forEach(sess=>{
+    (sess.entries||[]).forEach(e=>{
+      if(e.type==='cardio')return;
+      const mx=entryMaxWeight(e);if(!mx)return;
+      if(!bestByExercise[e.exercise]||mx>bestByExercise[e.exercise]){
+        if(bestByExercise[e.exercise])prs.push({exercise:e.exercise,weight:mx,unit:e.unit||'kg',date:sess.date});
+        bestByExercise[e.exercise]=mx;
+      }
+    });
+  });
+  return prs.sort((a,b)=>b.date.localeCompare(a.date)).slice(0,limit);
+}
+
 function renderProg(){
-  const searchVal=document.getElementById('prog-search')?.value||'';
-  if(searchVal.trim()){onProgSearch(searchVal);return;}
-  document.getElementById('prog-search-results').innerHTML='';
-  document.getElementById('prog-browse').style.display='';
+  const periodSessions=getSessionsInPeriod();
+  const totalVol=periodSessions.reduce((a,s)=>a+s.entries.reduce((b,e)=>b+entryVolume(e),0),0);
+  const totalSets=periodSessions.reduce((a,s)=>a+s.entries.reduce((b,e)=>b+(e.sets?.filter(s=>!s.warmup).length||0),0),0);
 
-  // Recientes
-  const recent=getRecentExercises(5);
-  document.getElementById('recent-chips').innerHTML=recent.length?
-    recent.map(name=>`<div class="echip ${selEx===name?'active':''}" onclick="selectEx('${name.replace(/'/g,"\\'")}')"> ${name}</div>`).join(''):
-    '<span style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--muted2)">Registra ejercicios para ver recientes</span>';
+  // Summary cards
+  document.getElementById('prog-summary').innerHTML=`
+    <div class="prog-cards">
+      <div class="prog-card"><div class="prog-card-val">${periodSessions.length}</div><div class="prog-card-lbl">Sesiones</div></div>
+      <div class="prog-card"><div class="prog-card-val" style="color:var(--orange)">${totalVol>=1000?(totalVol/1000).toFixed(1)+'k':Math.round(totalVol)}</div><div class="prog-card-lbl">kg volumen</div></div>
+      <div class="prog-card"><div class="prog-card-val" style="color:var(--blue)">${totalSets}</div><div class="prog-card-lbl">Sets totales</div></div>
+    </div>`;
 
-  // Zone tabs
-  const zones=Object.keys(ZONES);
-  if(!selZone)selZone=zones[0];
-  document.getElementById('zone-tabs').innerHTML=zones.map(z=>`<div class="mg-tab ${selZone===z?'active':''}" onclick="selectZone('${z}')">${ZONES[z]}</div>`).join('');
+  // Recent PRs
+  const prs=findRecentPRs(3);
+  document.getElementById('prog-prs').innerHTML=prs.length?`
+    <div class="slbl">PRs RECIENTES</div>
+    <div class="prog-pr-list">${prs.map(pr=>`<div class="prog-pr-item"><span class="prog-pr-icon">✨</span><span class="prog-pr-name">${pr.exercise}</span><span class="prog-pr-val">${pr.weight}${pr.unit}</span><span class="prog-pr-date">${fmtD(pr.date)}</span></div>`).join('')}</div>`:'';
 
-  // Muscle chips
-  const muscles=ZONE_MUSCLES[selZone]||[];
-  if(muscles.length>1){
-    document.getElementById('muscle-section').style.display='';
-    if(!selMuscle||!muscles.includes(selMuscle))selMuscle=muscles[0];
-    document.getElementById('muscle-chips').innerHTML=muscles.map(m=>`<div class="echip ${selMuscle===m?'active':''}" onclick="selectMuscle('${m.replace(/'/g,"\\'")}')"> ${m}</div>`).join('');
-  } else {
-    document.getElementById('muscle-section').style.display='none';
-    selMuscle=muscles[0]||null;
-  }
+  // Exercise list
+  renderProgExList();
 
-  // Exercise chips — only logged ones
-  const logged=getLoggedExercises();
-  const allExes=selMuscle?EXERCISE_DB.filter(e=>e.muscleGroup.includes(selMuscle)):[];
-  const exes=allExes.filter(e=>logged.has(e.name));
-  const exSec=document.getElementById('exercise-section');
-  if(exes.length){
-    exSec.style.display='';
-    document.getElementById('echips').innerHTML=exes.map(ex=>`<div class="echip ${selEx===ex.name?'active':''}" onclick="selectEx('${ex.name.replace(/'/g,"\\'")}')"> ${ex.name}</div>`).join('');
-  } else {
-    exSec.style.display='';
-    document.getElementById('echips').innerHTML='<span style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--muted2)">Sin registros en este grupo</span>';
-  }
-
-  if(selEx&&!exes.find(e=>e.name===selEx)&&!recent.includes(selEx))selEx=null;
-  if(selEx)renderExChart();else clearChart();
+  // Detail
+  if(selEx)renderExChart();else document.getElementById('prog-detail').style.display='none';
 }
-function selectZone(z){selZone=z;selMuscle=null;selEx=null;renderProg();clearChart();}
-function selectMuscle(m){selMuscle=m;selEx=null;renderProg();clearChart();}
-function onProgSearch(q){
-  const container=document.getElementById('prog-search-results');
-  const browse=document.getElementById('prog-browse');
-  if(!q.trim()){container.innerHTML='';browse.style.display='';if(selEx)renderExChart();return;}
-  browse.style.display='none';
+
+function renderProgExList(filter){
+  const q=(filter||document.getElementById('prog-search')?.value||'').trim().toLowerCase();
   const logged=getLoggedExercises();
-  const results=searchExercises(q).filter(e=>logged.has(e.name));
-  if(!results.length){container.innerHTML='<div style="padding:16px 0;text-align:center;font-family:\'DM Mono\',monospace;font-size:9px;color:var(--muted2)">Sin resultados</div>';return;}
-  container.innerHTML='<div class="ex-scroll" style="padding:8px 0"><div class="echips">'+results.map(ex=>`<div class="echip ${selEx===ex.name?'active':''}" onclick="selectEx('${ex.name.replace(/'/g,"\\'")}')"> ${ex.name}</div>`).join('')+'</div></div>';
+  let exercises=[...logged].filter(name=>{
+    if(q&&!name.toLowerCase().includes(q))return false;
+    return true;
+  });
+  // Sort by most recent
+  const lastDate={};
+  db.sessions.sort((a,b)=>b.date.localeCompare(a.date)).forEach(s=>s.entries?.forEach(e=>{if(!lastDate[e.exercise])lastDate[e.exercise]=s.date;}));
+  exercises.sort((a,b)=>(lastDate[b]||'').localeCompare(lastDate[a]||''));
+
+  const container=document.getElementById('prog-exercise-list');
+  if(!exercises.length){container.innerHTML=`<div style="padding:20px 0;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2)">${q?'Sin resultados':'Registra ejercicios para ver progreso'}</div>`;return;}
+
+  const trendIcons={up:'↑',down:'↓',stable:'→',new:'●'};
+  const trendColors={up:'var(--green)',down:'var(--red)',stable:'var(--muted2)',new:'var(--blue)'};
+
+  container.innerHTML=`<div class="slbl">EJERCICIOS</div><div class="prog-ex-list">${exercises.map(name=>{
+    const lastSess=db.sessions.find(s=>s.entries?.some(e=>e.exercise===name));
+    const lastEntry=lastSess?.entries?.find(e=>e.exercise===name);
+    const mx=entryMaxWeight(lastEntry);
+    const unit=lastEntry?.unit||'kg';
+    const trend=getExerciseTrend(name);
+    const mg=getExerciseMuscleGroup(name);
+    return`<div class="prog-ex-item ${selEx===name?'active':''}" onclick="selectEx('${name.replace(/'/g,"\\'")}')">
+      <div class="prog-ex-left">
+        <span class="prog-ex-name">${name}</span>
+        <span class="prog-ex-mg">${mg}</span>
+      </div>
+      <div class="prog-ex-right">
+        <span class="prog-ex-weight">${mx||'—'}${mx?unit:''}</span>
+        <span class="prog-ex-trend" style="color:${trendColors[trend]}">${trendIcons[trend]}</span>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
 }
+
+function onProgSearch(q){renderProgExList(q);}
+
+function selectEx(name){
+  selEx=selEx===name?null:name;
+  renderProg();
+}
+
 function clearChart(){
-  document.getElementById('chart-empty').style.display='flex';
-  document.getElementById('chart-cwrap').style.display='none';
-  document.getElementById('stat-row').style.display='none';
-  document.getElementById('pr-badge').style.display='none';
-  document.getElementById('notes-sec').style.display='none';
-  const pa=document.getElementById('plateau-alert');if(pa)pa.style.display='none';
+  document.getElementById('prog-detail').style.display='none';
 }
 function selectEx(name){selEx=name;renderProg();renderExChart();}
 
@@ -485,13 +533,15 @@ function detectPlateau(pts,windowSize=4){
 }
 
 function renderExChart(){
+  document.getElementById('prog-detail').style.display='block';
+  document.getElementById('prog-detail-header').innerHTML=`<div class="prog-detail-title">${selEx}</div><div class="prog-detail-mg">${getExerciseMuscleGroup(selEx)}</div>`;
   const pts=[];
   db.sessions.forEach(s=>{const e=s.entries?.find(e=>e.exercise===selEx);if(e){const mx=entryMaxWeight(e),vol=entryVolume(e),unit=e.unit||'kg',rm=entryBest1RM(e);if(mx)pts.push({date:s.date,mx,vol,unit,notes:e.notes,rm});}});
   pts.sort((a,b)=>a.date.localeCompare(b.date));
-  const empty=document.getElementById('chart-empty'),wrap=document.getElementById('chart-cwrap'),sr=document.getElementById('stat-row'),prb=document.getElementById('pr-badge');
+  const wrap=document.getElementById('chart-cwrap'),sr=document.getElementById('stat-row'),prb=document.getElementById('pr-badge');
   const pa=document.getElementById('plateau-alert');
-  if(pts.length<2){empty.style.display='flex';wrap.style.display='none';sr.style.display='none';prb.style.display='none';document.getElementById('notes-sec').style.display='none';if(pa)pa.style.display='none';return;}
-  empty.style.display='none';wrap.style.display='block';sr.style.display='flex';
+  if(pts.length<2){wrap.style.display='none';sr.style.display='none';prb.style.display='none';document.getElementById('notes-sec').style.display='none';if(pa)pa.style.display='none';return;}
+  wrap.style.display='block';sr.style.display='flex';
   const mxVals=pts.map(p=>p.mx),maxV=Math.max(...mxVals),unit=pts[0].unit,totalVol=pts.reduce((a,p)=>a+p.vol,0),isPR=mxVals[mxVals.length-1]===maxV;
   const best1rm=Math.max(...pts.map(p=>p.rm||0));
   prb.style.display=isPR?'':'none';

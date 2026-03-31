@@ -54,40 +54,37 @@
 
     <!-- PROGRESO -->
     <div class="view" id="view-prog">
+      <div class="prog-periods">
+        <div class="prog-period active" data-days="7" onclick="setProgPeriod(7)">Semana</div>
+        <div class="prog-period" data-days="30" onclick="setProgPeriod(30)">30d</div>
+        <div class="prog-period" data-days="90" onclick="setProgPeriod(90)">3m</div>
+        <div class="prog-period" data-days="0" onclick="setProgPeriod(0)">Todo</div>
+      </div>
+      <div id="prog-summary"></div>
+      <div id="prog-prs"></div>
       <input class="prog-search" type="text" id="prog-search" placeholder="Buscar ejercicio..." oninput="onProgSearch(this.value)">
-      <div id="prog-search-results"></div>
-      <div id="prog-browse">
-        <div class="slbl">RECIENTES</div>
-        <div class="ex-scroll"><div class="echips" id="recent-chips"></div></div>
-        <div class="slbl">ZONA</div>
-        <div class="mg-tabs-wrap"><div class="mg-tabs" id="zone-tabs"></div></div>
-        <div id="muscle-section" style="display:none">
-          <div class="slbl" id="muscle-label">MÚSCULO</div>
-          <div class="ex-scroll"><div class="echips" id="muscle-chips"></div></div>
+      <div id="prog-exercise-list"></div>
+      <div id="prog-detail" style="display:none">
+        <div id="prog-detail-header"></div>
+        <div class="stat-row" id="stat-row">
+          <div class="sbox hi"><div class="slb">RÉCORD</div><div class="sv" id="sv-max" style="color:var(--accent)">—</div><div class="su" id="su-max">kg</div></div>
+          <div class="sbox"><div class="slb">1RM EST</div><div class="sv" id="sv-1rm" style="color:var(--green)">—</div><div class="su" id="su-1rm">kg</div></div>
+          <div class="sbox"><div class="slb">VOLUMEN</div><div class="sv" id="sv-vol" style="color:var(--orange)">—</div><div class="su">kg total</div></div>
+          <div class="sbox"><div class="slb">SESIONES</div><div class="sv" id="sv-cnt" style="color:var(--blue)">—</div><div class="su">registros</div></div>
         </div>
-        <div id="exercise-section" style="display:none">
-          <div class="slbl">EJERCICIO</div>
-          <div class="ex-scroll"><div class="echips" id="echips"></div></div>
+        <div class="chart-box">
+          <div class="chart-top">
+            <span class="chart-title">PESO MÁXIMO POR SESIÓN</span>
+            <span class="pr-badge" id="pr-badge" style="display:none">🏆 PR</span>
+          </div>
+          <div class="chart-empty" id="chart-empty" style="display:none"></div>
+          <div class="chart-canvas-wrap" id="chart-cwrap"><canvas id="prog-chart"></canvas></div>
         </div>
-      </div>
-      <div class="stat-row" id="stat-row" style="display:none">
-        <div class="sbox hi"><div class="slb">RÉCORD</div><div class="sv" id="sv-max" style="color:var(--accent)">—</div><div class="su" id="su-max">kg</div></div>
-        <div class="sbox"><div class="slb">1RM EST</div><div class="sv" id="sv-1rm" style="color:var(--green)">—</div><div class="su" id="su-1rm">kg</div></div>
-        <div class="sbox"><div class="slb">VOLUMEN</div><div class="sv" id="sv-vol" style="color:var(--orange)">—</div><div class="su">kg total</div></div>
-        <div class="sbox"><div class="slb">SESIONES</div><div class="sv" id="sv-cnt" style="color:var(--blue)">—</div><div class="su">registros</div></div>
-      </div>
-      <div class="chart-box">
-        <div class="chart-top">
-          <span class="chart-title">PESO MÁXIMO POR SESIÓN</span>
-          <span class="pr-badge" id="pr-badge" style="display:none">🏆 PR</span>
+        <div class="plateau-alert" id="plateau-alert" style="display:none"></div>
+        <div id="notes-sec" style="display:none">
+          <div class="slbl">NOTAS</div>
+          <div id="notes-list"></div>
         </div>
-        <div class="chart-empty" id="chart-empty">Selecciona un ejercicio</div>
-        <div class="chart-canvas-wrap" id="chart-cwrap" style="display:none"><canvas id="prog-chart"></canvas></div>
-      </div>
-      <div class="plateau-alert" id="plateau-alert" style="display:none"></div>
-      <div id="notes-sec" style="display:none">
-        <div class="slbl">NOTAS</div>
-        <div id="notes-list"></div>
       </div>
     </div>
 
