@@ -157,7 +157,7 @@ function renderHeader(){
   document.getElementById('hdr-date').textContent=`${now.getDate()} ${MO[now.getMonth()]} ${now.getFullYear()}`;
   const b=document.getElementById('hdr-badge');
   if(!day||day.rest){b.textContent='DESCANSO';b.className='hdr-badge rest';}
-  else{b.textContent=day.label.toUpperCase();b.className='hdr-badge';}
+  else{const focus=getDayFocus(day.exercises);b.textContent=(focus||day.label||'ENTRENO').toUpperCase();b.className='hdr-badge';}
   // Dual streaks
   const constancia=calcStreak(),progreso=calcProgressStreak();
   const sc=document.getElementById('streak-constancia'),sp=document.getElementById('streak-progreso');
@@ -769,18 +769,41 @@ function renderBWChart(){
 
 let pickerDay=null; // which day the exercise picker is open for
 
+function getDayFocus(exercises){
+  if(!exercises||!exercises.length)return'';
+  // Count how many exercises target each muscle group
+  const counts={};
+  exercises.forEach(ex=>{
+    const info=typeof getExerciseInfo==='function'?getExerciseInfo(ex.name):null;
+    const groups=info?.muscleGroup||[getExerciseMuscleGroup(ex.name)];
+    // Only count primary group (first one)
+    const primary=groups[0];
+    if(primary&&primary!=='Otro')counts[primary]=(counts[primary]||0)+1;
+  });
+  // Sort by count descending, take top 2-3
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  if(!sorted.length)return'';
+  // If cardio dominates, just say Cardio
+  if(sorted[0][0]==='Cardio'&&sorted[0][1]>=exercises.length*0.5)return'Cardio';
+  // Take groups that have at least 2 exercises or are in top 2
+  const main=sorted.filter(([,c])=>c>=2).slice(0,3);
+  if(!main.length)return sorted.slice(0,2).map(([g])=>g).join(' + ');
+  return main.map(([g])=>g).join(' + ');
+}
+
 function renderRutina(){
   document.getElementById('routine-days').innerHTML=DK.map(dk=>{
     const day=db.routine[dk]||{label:'',rest:false,exercises:[]};
     const isRest=day.rest;
     const exList=(day.exercises||[]);
+    const focus=getDayFocus(exList);
     return`<div class="day-block ${isRest?'day-rest':''}" id="db-${dk}">
       <div class="day-hdr" onclick="toggleDay('${dk}')">
         <div class="day-hdr-left">
           <span class="day-letter">${DL[dk].charAt(0)}</span>
           <div>
             <div class="day-name">${DL[dk].toUpperCase()}</div>
-            <div class="day-sub">${isRest?'Descanso':day.label||'Toca para configurar'}</div>
+            <div class="day-sub">${isRest?'Descanso':focus||'Toca para configurar'}</div>
           </div>
         </div>
         <div class="day-tog" id="dtog-${dk}">›</div>
