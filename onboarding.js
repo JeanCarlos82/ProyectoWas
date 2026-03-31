@@ -1,5 +1,4 @@
 // ── ONBOARDING WIZARD ──
-// 3-step wizard that generates a personalized routine
 
 const ROUTINE_TEMPLATES={
   fullbody_3:{
@@ -7,8 +6,14 @@ const ROUTINE_TEMPLATES={
       [{name:"Sentadilla",type:"pesas"},{name:"Press banca",type:"pesas"},{name:"Remo con barra",type:"pesas"},{name:"Press militar",type:"pesas"},{name:"Curl con barra",type:"pesas"},{name:"Tríceps en polea",type:"pesas"}],
       [{name:"Peso muerto rumano",type:"pesas"},{name:"Press inclinado",type:"pesas"},{name:"Jalón al pecho",type:"pesas"},{name:"Elevaciones laterales",type:"pesas"},{name:"Curl martillo",type:"pesas"},{name:"Press francés",type:"pesas"}],
       [{name:"Sentadilla búlgara",type:"pesas"},{name:"Press con mancuernas",type:"pesas"},{name:"Remo con mancuerna",type:"pesas"},{name:"Press Arnold",type:"pesas"},{name:"Curl con mancuernas",type:"pesas"},{name:"Fondos en banco",type:"pesas"}]
-    ],
-    labels:["Full Body A","Full Body B","Full Body C"]
+    ],labels:["Full Body A","Full Body B","Full Body C"]
+  },
+  fullbody_cardio_3:{
+    exercises:[
+      [{name:"Sentadilla",type:"pesas"},{name:"Press banca",type:"pesas"},{name:"Remo con barra",type:"pesas"},{name:"Press militar",type:"pesas"},{name:"Plancha",type:"pesas"}],
+      [{name:"Correr",type:"cardio"},{name:"Elíptica",type:"cardio"}],
+      [{name:"Peso muerto rumano",type:"pesas"},{name:"Press inclinado",type:"pesas"},{name:"Jalón al pecho",type:"pesas"},{name:"Elevaciones laterales",type:"pesas"},{name:"Crunch",type:"pesas"}]
+    ],labels:["Full Body","Cardio","Full Body"]
   },
   upperlower_4:{
     exercises:[
@@ -16,8 +21,7 @@ const ROUTINE_TEMPLATES={
       [{name:"Sentadilla",type:"pesas"},{name:"Prensa de pierna",type:"pesas"},{name:"Curl femoral",type:"pesas"},{name:"Pantorrillas",type:"pesas"},{name:"Hip thrust",type:"pesas"}],
       [{name:"Press inclinado",type:"pesas"},{name:"Jalón al pecho",type:"pesas"},{name:"Press Arnold",type:"pesas"},{name:"Curl martillo",type:"pesas"},{name:"Press francés",type:"pesas"},{name:"Face pull",type:"pesas"}],
       [{name:"Peso muerto rumano",type:"pesas"},{name:"Sentadilla búlgara",type:"pesas"},{name:"Extensiones cuádriceps",type:"pesas"},{name:"Curl femoral",type:"pesas"},{name:"Pantorrillas",type:"pesas"}]
-    ],
-    labels:["Upper A","Lower A","Upper B","Lower B"]
+    ],labels:["Upper A","Lower A","Upper B","Lower B"]
   },
   pplul_5:{
     exercises:[
@@ -26,8 +30,7 @@ const ROUTINE_TEMPLATES={
       [{name:"Sentadilla",type:"pesas"},{name:"Prensa de pierna",type:"pesas"},{name:"Peso muerto rumano",type:"pesas"},{name:"Curl femoral",type:"pesas"},{name:"Pantorrillas",type:"pesas"},{name:"Hip thrust",type:"pesas"}],
       [{name:"Press inclinado",type:"pesas"},{name:"Jalón al pecho",type:"pesas"},{name:"Press Arnold",type:"pesas"},{name:"Curl con barra",type:"pesas"},{name:"Tríceps en polea",type:"pesas"},{name:"Elevaciones laterales",type:"pesas"}],
       [{name:"Sentadilla búlgara",type:"pesas"},{name:"Extensiones cuádriceps",type:"pesas"},{name:"Curl femoral",type:"pesas"},{name:"Hip thrust",type:"pesas"},{name:"Pantorrillas",type:"pesas"}]
-    ],
-    labels:["Push","Pull","Legs","Upper","Lower"]
+    ],labels:["Push","Pull","Legs","Upper","Lower"]
   },
   ppl_6:{
     exercises:[
@@ -37,12 +40,13 @@ const ROUTINE_TEMPLATES={
       [{name:"Press inclinado",type:"pesas"},{name:"Aperturas en polea",type:"pesas"},{name:"Press Arnold",type:"pesas"},{name:"Elevaciones frontales",type:"pesas"},{name:"Press francés",type:"pesas"},{name:"Fondos en banco",type:"pesas"}],
       [{name:"Dominadas",type:"pesas"},{name:"Remo en polea baja",type:"pesas"},{name:"Pájaros",type:"pesas"},{name:"Curl con mancuernas",type:"pesas"},{name:"Curl predicador",type:"pesas"}],
       [{name:"Sentadilla frontal",type:"pesas"},{name:"Zancadas",type:"pesas"},{name:"Extensiones cuádriceps",type:"pesas"},{name:"Curl femoral",type:"pesas"},{name:"Pantorrillas",type:"pesas"},{name:"Abductores en máquina",type:"pesas"}]
-    ],
-    labels:["Push","Pull","Legs","Push","Pull","Legs"]
+    ],labels:["Push","Pull","Legs","Push","Pull","Legs"]
   }
 };
 
-function selectTemplate(numDays){
+function selectTemplate(experience,numDays,goal){
+  // Perder grasa + principiante → add cardio day
+  if(goal==='grasa'&&experience==='principiante'&&numDays<=3)return'fullbody_cardio_3';
   if(numDays<=3)return'fullbody_3';
   if(numDays===4)return'upperlower_4';
   if(numDays===5)return'pplul_5';
@@ -55,6 +59,13 @@ function getDaysWarning(experience,numDays){
   return null;
 }
 
+function getSuggestedDays(activity,experience){
+  // Suggest based on activity level + experience
+  if(experience==='principiante')return activity<=1?3:activity<=3?3:4;
+  if(experience==='intermedio')return activity<=1?3:activity<=2?4:5;
+  return activity<=1?4:activity<=2?4:activity<=3?5:6;
+}
+
 function goalToObjective(goal){
   if(goal==='musculo')return'hipertrofia';
   if(goal==='fuerza')return'fuerza';
@@ -62,11 +73,9 @@ function goalToObjective(goal){
   return'hipertrofia';
 }
 
-// Build routine from template + selected days
 function buildRoutineFromWizard(templateKey,selectedDays){
   const tmpl=ROUTINE_TEMPLATES[templateKey];
   const allDK=["lunes","martes","miercoles","jueves","viernes","sabado","domingo"];
-  const DLshort={lunes:"Lunes",martes:"Martes",miercoles:"Miércoles",jueves:"Jueves",viernes:"Viernes",sabado:"Sábado",domingo:"Domingo"};
   const routine={};
   let exIdx=0;
   allDK.forEach(dk=>{
@@ -81,9 +90,17 @@ function buildRoutineFromWizard(templateKey,selectedDays){
 }
 
 // ── Wizard State ──
-const WIZARD_STEPS=4;
+const WIZARD_STEPS=5;
 let wizardStep=1;
 let wizardData={name:'',age:'',sex:'H',height:'',weight:'',activityLevel:2,goal:null,experience:null,selectedDays:[]};
+
+const ACTIVITY_OPTS=[
+  {i:0,l:'Sedentario',d:'Trabajo de oficina, sin ejercicio',emoji:'🪑'},
+  {i:1,l:'Ligero',d:'Caminas a diario o 1-2 días de gym',emoji:'🚶'},
+  {i:2,l:'Moderado',d:'3-4 días de gym por semana',emoji:'💪'},
+  {i:3,l:'Activo',d:'5-6 días de gym o deporte frecuente',emoji:'🏃'},
+  {i:4,l:'Muy activo',d:'Entrenas 2 veces al día o trabajo físico',emoji:'🔥'}
+];
 
 function showWizard(){
   const hasExisting=Object.values(db.routine).some(d=>d.exercises?.length>0);
@@ -91,13 +108,11 @@ function showWizard(){
     if(!confirm('Esto reemplazará tu rutina actual. ¿Continuar?'))return;
   }
   wizardStep=1;
-  wizardData={name:db.profile.name||'',age:db.profile.age||'',sex:db.profile.sex||'H',height:db.profile.height||'',weight:db.profile.weight||'',activityLevel:db.profile.activityLevel||2,goal:null,experience:null,selectedDays:[]};
+  wizardData={name:db.profile.name||'',age:db.profile.age||'',sex:db.profile.sex||'H',height:db.profile.height||'',weight:db.profile.weight||'',activityLevel:db.profile.activityLevel??2,goal:null,experience:null,selectedDays:[]};
   document.getElementById('wizard-overlay').style.display='flex';
   renderWizardStep();
 }
-function hideWizard(){
-  document.getElementById('wizard-overlay').style.display='none';
-}
+function hideWizard(){document.getElementById('wizard-overlay').style.display='none';}
 
 function renderWizardStep(){
   const container=document.getElementById('wizard-content');
@@ -105,9 +120,10 @@ function renderWizardStep(){
   dots.innerHTML=Array.from({length:WIZARD_STEPS},(_,i)=>i+1).map(n=>`<span class="wiz-dot ${n===wizardStep?'active':''}${n<wizardStep?' done':''}"></span>`).join('');
 
   if(wizardStep===1){
+    // DATOS PERSONALES
     container.innerHTML=`
       <div class="wiz-title">Sobre ti</div>
-      <div class="wiz-subtitle">Nota: Si no sabes algún dato, déjalo vacío</div>
+      <div class="wiz-subtitle">Si no sabes algún dato, déjalo vacío</div>
       <div class="wiz-form">
         <div class="wiz-field"><label class="wiz-label">NOMBRE</label><input class="wiz-input" type="text" id="wiz-name" value="${wizardData.name}" placeholder="Tu nombre"></div>
         <div class="wiz-row">
@@ -118,57 +134,68 @@ function renderWizardStep(){
           <div class="wiz-field"><label class="wiz-label">ALTURA (cm)</label><input class="wiz-input wiz-num" type="number" id="wiz-height" value="${wizardData.height}" placeholder="175" min="100" max="230"></div>
           <div class="wiz-field"><label class="wiz-label">PESO (kg)</label><input class="wiz-input wiz-num" type="number" id="wiz-weight" value="${wizardData.weight}" placeholder="75" min="30" max="300" step="0.1"></div>
         </div>
-        <div class="wiz-field" style="margin-top:6px">
-          <label class="wiz-label">NIVEL DE ACTIVIDAD</label>
-          <div class="wiz-activity-opts">
-            ${[{i:0,l:'Sedentario',d:'Oficina, sin ejercicio'},{i:1,l:'Ligero',d:'Caminar, 1-2 días gym'},{i:2,l:'Moderado',d:'3-4 días gym'},{i:3,l:'Activo',d:'5-6 días gym'},{i:4,l:'Muy activo',d:'2x al día, trabajo físico'}].map(a=>
-              `<div class="wiz-activity ${wizardData.activityLevel===a.i?'active':''}" onclick="wizardData.activityLevel=${a.i};renderWizardStep()"><span class="wiz-act-name">${a.l}</span><span class="wiz-act-desc">${a.d}</span></div>`
-            ).join('')}
-          </div>
-        </div>
       </div>
       <button class="sbtn" onclick="wizNextProfile()" style="margin-top:16px">CONTINUAR</button>`;
+
   } else if(wizardStep===2){
+    // NIVEL DE ACTIVIDAD
+    container.innerHTML=`
+      <div class="wiz-title">Tu estilo de vida</div>
+      <div class="wiz-subtitle">Esto nos ayuda a calcular tus calorías y sugerirte días de entrenamiento</div>
+      <div class="wiz-options">
+        ${ACTIVITY_OPTS.map(a=>`<div class="wiz-opt ${wizardData.activityLevel===a.i?'active':''}" onclick="wizSelectActivity(${a.i})">
+          <span class="wiz-emoji">${a.emoji}</span>
+          <div><span class="wiz-opt-title">${a.l}</span><span class="wiz-opt-desc">${a.d}</span></div>
+        </div>`).join('')}
+      </div>`;
+
+  } else if(wizardStep===3){
+    // OBJETIVO
     container.innerHTML=`
       <div class="wiz-title">¿Cuál es tu objetivo?</div>
-      <div class="wiz-subtitle">Esto define tus sets y repeticiones</div>
+      <div class="wiz-subtitle">Adaptamos ejercicios, series y repeticiones</div>
       <div class="wiz-options">
         <div class="wiz-opt ${wizardData.goal==='musculo'?'active':''}" onclick="wizSelect('goal','musculo')">
           <span class="wiz-emoji">💪</span>
-          <div><span class="wiz-opt-title">Ganar músculo</span><span class="wiz-opt-desc">Hipertrofia · 8-12 reps</span></div>
+          <div><span class="wiz-opt-title">Ganar músculo</span><span class="wiz-opt-desc">Hipertrofia · 3-4 series × 8-12 reps</span></div>
         </div>
         <div class="wiz-opt ${wizardData.goal==='fuerza'?'active':''}" onclick="wizSelect('goal','fuerza')">
           <span class="wiz-emoji">🏋️</span>
-          <div><span class="wiz-opt-title">Ganar fuerza</span><span class="wiz-opt-desc">Fuerza máxima · 3-6 reps</span></div>
+          <div><span class="wiz-opt-title">Ganar fuerza</span><span class="wiz-opt-desc">Fuerza · 4-5 series × 3-6 reps</span></div>
         </div>
         <div class="wiz-opt ${wizardData.goal==='grasa'?'active':''}" onclick="wizSelect('goal','grasa')">
           <span class="wiz-emoji">🔥</span>
-          <div><span class="wiz-opt-title">Perder grasa</span><span class="wiz-opt-desc">Resistencia · 12-15 reps</span></div>
+          <div><span class="wiz-opt-title">Perder grasa</span><span class="wiz-opt-desc">Resistencia + cardio · 3 series × 12-15 reps</span></div>
         </div>
         <div class="wiz-opt ${wizardData.goal==='general'?'active':''}" onclick="wizSelect('goal','general')">
           <span class="wiz-emoji">⚡</span>
-          <div><span class="wiz-opt-title">Estar en forma</span><span class="wiz-opt-desc">General · 8-12 reps</span></div>
+          <div><span class="wiz-opt-title">Estar en forma</span><span class="wiz-opt-desc">General · 3 series × 8-12 reps</span></div>
         </div>
       </div>`;
-  } else if(wizardStep===3){
+
+  } else if(wizardStep===4){
+    // EXPERIENCIA
     container.innerHTML=`
       <div class="wiz-title">¿Cuánta experiencia tienes?</div>
-      <div class="wiz-subtitle">Adaptamos la rutina a tu nivel</div>
+      <div class="wiz-subtitle">Esto define la complejidad de tu rutina</div>
       <div class="wiz-options">
         <div class="wiz-opt ${wizardData.experience==='principiante'?'active':''}" onclick="wizSelect('experience','principiante')">
           <span class="wiz-emoji">🌱</span>
-          <div><span class="wiz-opt-title">Nunca he entrenado</span><span class="wiz-opt-desc">Principiante</span></div>
+          <div><span class="wiz-opt-title">Nunca he entrenado</span><span class="wiz-opt-desc">Empezamos con lo básico — ejercicios compuestos</span></div>
         </div>
         <div class="wiz-opt ${wizardData.experience==='intermedio'?'active':''}" onclick="wizSelect('experience','intermedio')">
           <span class="wiz-emoji">🔄</span>
-          <div><span class="wiz-opt-title">Menos de 1 año</span><span class="wiz-opt-desc">Intermedio</span></div>
+          <div><span class="wiz-opt-title">Menos de 1 año</span><span class="wiz-opt-desc">Ya conoces los ejercicios — más variedad y volumen</span></div>
         </div>
         <div class="wiz-opt ${wizardData.experience==='avanzado'?'active':''}" onclick="wizSelect('experience','avanzado')">
           <span class="wiz-emoji">🏆</span>
-          <div><span class="wiz-opt-title">Más de 1 año</span><span class="wiz-opt-desc">Avanzado</span></div>
+          <div><span class="wiz-opt-title">Más de 1 año</span><span class="wiz-opt-desc">Rutinas avanzadas — mayor frecuencia y especificidad</span></div>
         </div>
       </div>`;
-  } else if(wizardStep===4){
+
+  } else if(wizardStep===5){
+    // DÍAS — con sugerencia basada en actividad + experiencia
+    const suggested=getSuggestedDays(wizardData.activityLevel,wizardData.experience);
     const warning=wizardData.selectedDays.length?getDaysWarning(wizardData.experience,wizardData.selectedDays.length):null;
     const allDays=[
       {key:"lunes",label:"L"},{key:"martes",label:"M"},{key:"miercoles",label:"X"},
@@ -176,23 +203,28 @@ function renderWizardStep(){
     ];
     container.innerHTML=`
       <div class="wiz-title">¿Qué días entrenas?</div>
-      <div class="wiz-subtitle">Toca los días disponibles</div>
+      <div class="wiz-subtitle">Basado en tu actividad y nivel, te recomendamos <strong>${suggested} días</strong></div>
       <div class="wiz-day-picker">
         ${allDays.map(d=>`<div class="wiz-day-btn ${wizardData.selectedDays.includes(d.key)?'active':''}" onclick="toggleWizDay('${d.key}')">${d.label}</div>`).join('')}
       </div>
-      <div class="wiz-day-count">${wizardData.selectedDays.length} días seleccionados</div>
+      <div class="wiz-day-count">${wizardData.selectedDays.length} de ${suggested} recomendados</div>
       ${warning?`<div class="wiz-warning">${warning}</div>`:''}
-      ${wizardData.selectedDays.length>=3?`<button class="sbtn" onclick="showWizardResult()" style="margin-top:16px">CONTINUAR</button>`:'<div class="wiz-warning" style="border-color:var(--border2);color:var(--muted2);background:var(--card2)">Selecciona al menos 3 días</div>'}`;
+      ${wizardData.selectedDays.length>=3?`<button class="sbtn" onclick="showWizardResult()" style="margin-top:16px">VER MI RUTINA</button>`:'<div class="wiz-hint">Selecciona al menos 3 días</div>'}`;
   }
 }
 
 function wizNextProfile(){
-  // Read values from inputs
   wizardData.name=document.getElementById('wiz-name').value.trim();
   wizardData.age=document.getElementById('wiz-age').value;
   wizardData.height=document.getElementById('wiz-height').value;
   wizardData.weight=document.getElementById('wiz-weight').value;
   wizardStep=2;renderWizardStep();
+}
+
+function wizSelectActivity(level){
+  wizardData.activityLevel=level;
+  renderWizardStep();
+  setTimeout(()=>{wizardStep=3;renderWizardStep();},300);
 }
 
 function wizSelect(key,value){
@@ -205,7 +237,6 @@ function toggleWizDay(dk){
   const idx=wizardData.selectedDays.indexOf(dk);
   if(idx>=0)wizardData.selectedDays.splice(idx,1);
   else if(wizardData.selectedDays.length<6)wizardData.selectedDays.push(dk);
-  // Keep sorted by week order
   const order=["lunes","martes","miercoles","jueves","viernes","sabado","domingo"];
   wizardData.selectedDays.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
   renderWizardStep();
@@ -213,12 +244,12 @@ function toggleWizDay(dk){
 
 function showWizardResult(){
   const numDays=wizardData.selectedDays.length;
-  const templateKey=selectTemplate(numDays);
+  const templateKey=selectTemplate(wizardData.experience,numDays,wizardData.goal);
   const routine=buildRoutineFromWizard(templateKey,wizardData.selectedDays);
   const container=document.getElementById('wizard-content');
   document.getElementById('wizard-dots').innerHTML='';
 
-  const splitName=numDays<=3?'Full Body':numDays===4?'Upper / Lower':numDays===5?'PPLUL':'Push / Pull / Legs';
+  const splitNames={fullbody_3:'Full Body',fullbody_cardio_3:'Full Body + Cardio',upperlower_4:'Upper / Lower',pplul_5:'PPLUL',ppl_6:'Push / Pull / Legs'};
   const dl={lunes:"Lun",martes:"Mar",miercoles:"Mié",jueves:"Jue",viernes:"Vie",sabado:"Sáb",domingo:"Dom"};
   const allDK=["lunes","martes","miercoles","jueves","viernes","sabado","domingo"];
 
@@ -229,27 +260,24 @@ function showWizardResult(){
   }).join('');
 
   container.innerHTML=`
-    <div class="wiz-title">Tu rutina está lista</div>
-    <div class="wiz-subtitle">${numDays} días · ${splitName}</div>
+    <div class="wiz-title">Tu rutina personalizada</div>
+    <div class="wiz-subtitle">${numDays} días · ${splitNames[templateKey]||'Personalizada'}</div>
     <div class="wiz-preview">${preview}</div>
     <div class="wiz-result-actions">
-      <button class="sbtn" onclick="applyWizardRoutine()">EMPEZAR</button>
-      <button class="wiz-customize-btn" onclick="applyWizardRoutine(true)">PERSONALIZAR</button>
+      <button class="sbtn" onclick="applyWizardRoutine()">EMPEZAR A ENTRENAR</button>
+      <button class="wiz-customize-btn" onclick="applyWizardRoutine(true)">PERSONALIZAR EJERCICIOS</button>
     </div>`;
 }
 
 function applyWizardRoutine(customize){
   const numDays=wizardData.selectedDays.length;
-  const templateKey=selectTemplate(numDays);
+  const templateKey=selectTemplate(wizardData.experience,numDays,wizardData.goal);
   const routine=buildRoutineFromWizard(templateKey,wizardData.selectedDays);
 
-  // Save routine
   db.routine=routine;
   ps('gym_routine',db.routine);
   db.objective=goalToObjective(wizardData.goal);
   ps('gym_objective',db.objective);
-
-  // Save profile (defaults for empty fields)
   db.profile={
     ...db.profile,
     name:wizardData.name||'Usuario',

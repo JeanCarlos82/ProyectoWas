@@ -392,6 +392,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .wiz-day-btn:active{transform:scale(0.9);}
 .wiz-day-btn.active{background:var(--accent);border-color:var(--accent);color:#000;}
 .wiz-day-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);text-align:center;margin-top:12px;}
+.wiz-hint{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);text-align:center;margin-top:14px;padding:10px;background:var(--card);border-radius:8px;border:1px solid var(--border);}
 /* Wizard form */
 .wiz-form{display:flex;flex-direction:column;gap:10px;}
 .wiz-row{display:flex;gap:10px;}
