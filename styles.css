@@ -383,14 +383,12 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .wiz-opt-desc{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);display:block;margin-top:2px;}
 .wiz-opt.active .wiz-opt-title{color:var(--accent);}
 
-/* Days selection */
-.wiz-days{flex-direction:row;gap:10px;}
-.wiz-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all 0.2s;}
-.wiz-day:active{transform:scale(0.95);}
-.wiz-day.active{border-color:var(--accent);background:rgba(232,255,58,0.04);}
-.wiz-day-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--text);line-height:1;}
-.wiz-day-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);}
-.wiz-day.active .wiz-day-num{color:var(--accent);}
+/* Day picker */
+.wiz-day-picker{display:flex;gap:6px;justify-content:center;}
+.wiz-day-btn{width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--card);border:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--muted2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all 0.2s;}
+.wiz-day-btn:active{transform:scale(0.9);}
+.wiz-day-btn.active{background:var(--accent);border-color:var(--accent);color:#000;}
+.wiz-day-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);text-align:center;margin-top:12px;}
 .wiz-warning{background:rgba(255,170,58,0.08);border:1px solid rgba(255,170,58,0.15);border-radius:10px;padding:12px 14px;margin-top:14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--orange);line-height:1.5;text-align:center;}
 
 /* Result preview */
