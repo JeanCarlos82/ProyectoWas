@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>GYM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+  <div class="hdr">
+    <div>
+      <div class="hdr-eyebrow">ENTRENAMIENTO HOY</div>
+      <div class="hdr-day" id="hdr-day">—</div>
+      <div class="hdr-date" id="hdr-date">—</div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-badge" id="hdr-badge">—</div>
+      <div class="streak" id="streak" style="display:none">🔥 <span id="streak-n">0</span> días</div>
+    </div>
+  </div>
+
+  <div class="scroll" id="scroll">
+
+    <!-- HOY -->
+    <div class="view active" id="view-hoy">
+      <div class="slbl">EJERCICIOS</div>
+      <div id="hoy-content"></div>
+    </div>
+
+    <!-- HISTORIAL -->
+    <div class="view" id="view-hist">
+      <div class="slbl">SESIONES</div>
+      <div class="sess-list" id="sess-list"></div>
+    </div>
+
+    <!-- PROGRESO -->
+    <div class="view" id="view-prog">
+      <div class="slbl">GRUPO MUSCULAR</div>
+      <div class="mg-tabs-wrap"><div class="mg-tabs" id="mg-tabs"></div></div>
+      <div class="slbl">EJERCICIO</div>
+      <div class="ex-scroll"><div class="echips" id="echips"></div></div>
+      <div class="stat-row" id="stat-row" style="display:none">
+        <div class="sbox hi"><div class="slb">RÉCORD</div><div class="sv" id="sv-max" style="color:var(--accent)">—</div><div class="su" id="su-max">kg</div></div>
+        <div class="sbox"><div class="slb">VOLUMEN</div><div class="sv" id="sv-vol" style="color:var(--orange)">—</div><div class="su">kg total</div></div>
+        <div class="sbox"><div class="slb">SESIONES</div><div class="sv" id="sv-cnt" style="color:var(--blue)">—</div><div class="su">registros</div></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-top">
+          <span class="chart-title">PESO MÁXIMO POR SESIÓN</span>
+          <span class="pr-badge" id="pr-badge" style="display:none">🏆 PR</span>
+        </div>
+        <div class="chart-empty" id="chart-empty">Selecciona un ejercicio</div>
+        <div class="chart-canvas-wrap" id="chart-cwrap" style="display:none"><canvas id="prog-chart"></canvas></div>
+      </div>
+      <div id="notes-sec" style="display:none">
+        <div class="slbl">NOTAS</div>
+        <div id="notes-list"></div>
+      </div>
+    </div>
+
+    <!-- PERFIL -->
+    <div class="view" id="view-perfil">
+
+      <div class="slbl">OBJETIVO DE ENTRENAMIENTO</div>
+      <div class="psec">
+        <div class="pfield" style="margin-bottom:0">
+          <div class="plbl">¿Para qué entrenas?</div>
+          <div class="obj-select" style="margin-top:6px">
+            <div class="obj-opt" id="obj-fuerza" onclick="setObj('fuerza')"><div class="obj-opt-l">FUERZA</div><div class="obj-opt-s">1–5 reps</div></div>
+            <div class="obj-opt" id="obj-hipertrofia" onclick="setObj('hipertrofia')"><div class="obj-opt-l">HIPER</div><div class="obj-opt-s">6–12 reps</div></div>
+            <div class="obj-opt" id="obj-resistencia" onclick="setObj('resistencia')"><div class="obj-opt-l">RESIST</div><div class="obj-opt-s">13–20 reps</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slbl">DATOS PERSONALES</div>
+      <div class="psec">
+        <div class="pfield"><div class="plbl">NOMBRE</div><input class="pinput" type="text" id="p-name" placeholder="Tu nombre" oninput="saveProfile()"></div>
+        <div class="p2">
+          <div class="pfield"><div class="plbl">EDAD</div><input class="pinput pnum" type="number" id="p-age" placeholder="25" min="10" max="99" oninput="saveProfile()"></div>
+          <div class="pfield"><div class="plbl">SEXO</div><div class="sex-row"><div class="sex-btn active" id="sex-h" onclick="setSex('H')">HOMBRE</div><div class="sex-btn" id="sex-m" onclick="setSex('M')">MUJER</div></div></div>
+        </div>
+        <div class="p2" style="margin-bottom:0">
+          <div class="pfield" style="margin-bottom:0"><div class="plbl">ALTURA (cm)</div><input class="pinput pnum" type="number" id="p-height" placeholder="175" min="100" max="230" oninput="saveProfile();updateIMC()"></div>
+          <div class="pfield" style="margin-bottom:0"><div class="plbl">PESO (kg)</div><input class="pinput pnum" type="number" id="p-weight" placeholder="75" min="30" max="300" step="0.1" oninput="saveProfile();updateIMC()"></div>
+        </div>
+      </div>
+
+      <div class="slbl">IMC / PESO IDEAL</div>
+      <div class="psec"><div id="imc-wrap"><div style="color:var(--muted2);font-size:10px;text-align:center;padding:10px 0;font-family:'DM Mono',monospace">Completa altura y peso arriba</div></div></div>
+
+      <div class="slbl">EVOLUCIÓN DE PESO CORPORAL</div>
+      <div class="psec">
+        <div class="bw-row">
+          <div class="bw-wrap"><input class="bwinput" type="number" id="bw-val" placeholder="75.5" step="0.1" min="30" max="300"><span class="bwunit">kg</span></div>
+          <button class="bw-addbtn" onclick="logBW()">+</button>
+        </div>
+        <div class="bw-chart-box">
+          <div class="bw-chart-empty" id="bw-empty">Sin registros aún</div>
+          <canvas id="bw-chart" style="display:none;height:100px"></canvas>
+        </div>
+        <div class="bw-hist" id="bw-hist"></div>
+      </div>
+
+      <div class="slbl">BACKUP</div>
+      <div class="psec">
+        <div class="backup-row">
+          <div class="backup-btn exp" onclick="exportData()"><div class="backup-lbl">EXPORTAR</div><div class="backup-sub">Guardar JSON</div></div>
+          <label class="backup-btn imp" style="cursor:pointer"><div class="backup-lbl">IMPORTAR</div><div class="backup-sub">Restaurar JSON</div><input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+        </div>
+      </div>
+
+      <div class="slbl">RUTINA</div>
+      <div id="routine-days"></div>
+    </div>
+
+  </div>
+
+  <nav class="nav">
+    <div class="ni active" onclick="switchView('hoy',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nlbl">HOY</span>
+    </div>
+    <div class="ni" onclick="switchView('hist',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span class="nlbl">HISTORIAL</span>
+    </div>
+    <div class="ni" onclick="switchView('prog',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span class="nlbl">PROGRESO</span>
+    </div>
+    <div class="ni" onclick="switchView('perfil',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nlbl">PERFIL</span>
+    </div>
+  </nav>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="mtitle"></div>
+    <div class="msub" id="msub"></div>
+    <div id="mhints"></div>
+    <div id="m-wsec">
+      <div class="sets-header">
+        <div class="sets-title">SERIES DE HOY</div>
+        <div class="unit-row">
+          <button class="ubtn active" id="btn-kg" onclick="setUnit('kg')">kg</button>
+          <button class="ubtn" id="btn-lb" onclick="setUnit('lb')">lb</button>
+        </div>
+      </div>
+      <div id="prev-sets-block"></div>
+      <div id="sets-list"></div>
+      <button class="add-set-btn" onclick="addSet()">+ AÑADIR SERIE</button>
+      <div class="vol-summary" id="vol-summary" style="display:none">
+        <div class="vol-box"><div class="vol-label">SERIES</div><div class="vol-val" id="vol-sets">0</div></div>
+        <div class="vol-box"><div class="vol-label">MÁXIMO</div><div class="vol-val" id="vol-max" style="color:var(--accent)">0</div></div>
+        <div class="vol-box"><div class="vol-label">VOLUMEN</div><div class="vol-val" id="vol-total" style="color:var(--orange)">0</div></div>
+      </div>
+    </div>
+    <div id="m-csec" style="display:none">
+      <div class="cfields">
+        <div class="cfield"><div class="cflabel">Minutos</div><input class="cinput" type="number" id="c-min" placeholder="0" min="0"></div>
+        <div class="cfield"><div class="cflabel">Kilómetros</div><input class="cinput" type="number" id="c-km" placeholder="0" min="0" step="0.1"></div>
+      </div>
+    </div>
+    <textarea class="ninput" id="nval" placeholder="Notas (opcional)..." rows="2"></textarea>
+    <button class="sbtn" onclick="saveEntry()">GUARDAR</button>
+    <button class="dbtn" id="dbtn" onclick="deleteEntry()" style="display:none">BORRAR REGISTRO</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
