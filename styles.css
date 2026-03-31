@@ -101,6 +101,8 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
   flex-shrink:0;display:flex;
   background:rgba(20,20,20,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-top:1px solid var(--border);
+  border-radius:20px 20px 0 0;
+  margin:0 6px;
   padding-bottom:var(--safe-bottom);
   padding-left:var(--safe-left);
   padding-right:var(--safe-right);
