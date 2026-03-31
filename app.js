@@ -1064,6 +1064,37 @@ function openModal(name,type){
   document.getElementById('overlay').classList.add('open');
 }
 function closeModal(e){if(e&&e.target!==document.getElementById('overlay'))return;document.getElementById('overlay').classList.remove('open');}
+
+// ── Swipe down to close modal ──
+(function(){
+  let startY=0,currentY=0,isDragging=false;
+  const getModal=()=>document.querySelector('.overlay.open .modal');
+  document.addEventListener('touchstart',e=>{
+    const modal=getModal();if(!modal)return;
+    const touch=e.touches[0];
+    // Only start drag from top area of modal or if scrolled to top
+    if(modal.scrollTop<=0){startY=touch.clientY;isDragging=true;currentY=0;}
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(!isDragging)return;
+    const modal=getModal();if(!modal)return;
+    currentY=e.touches[0].clientY-startY;
+    if(currentY>0){
+      modal.style.transform=`translateY(${currentY}px)`;
+      modal.style.transition='none';
+    } else {currentY=0;}
+  },{passive:true});
+  document.addEventListener('touchend',()=>{
+    if(!isDragging)return;isDragging=false;
+    const modal=getModal();if(!modal)return;
+    modal.style.transition='';
+    if(currentY>80){
+      document.getElementById('overlay').classList.remove('open');
+    }
+    modal.style.transform='';
+    currentY=0;
+  });
+})();
 function saveEntry(){
   const t=today(),dk=todayDK();let entry;
   if(curType==='cardio'){entry={exercise:curEx,type:'cardio',min:parseFloat(document.getElementById('c-min').value)||0,km:parseFloat(document.getElementById('c-km').value)||0,notes:document.getElementById('nval').value.trim()};}
