@@ -767,5 +767,36 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 
+// ── TEST DATA (remove after testing) ──
+(function injectTestData(){
+  if(db.sessions.length>0)return; // Don't inject if user already has data
+  const t=today();
+  const d=n=>{const dd=new Date();dd.setDate(dd.getDate()-n);return dd.toISOString().split('T')[0];};
+  const dk=n=>{const dd=new Date();dd.setDate(dd.getDate()-n);return DK[dd.getDay()];};
+  db.sessions=[
+    {date:d(6),dayKey:dk(6),entries:[
+      {exercise:"Press banca",type:"pesas",sets:[{w:50,r:10},{w:50,r:8},{w:45,r:10}],unit:"kg"},
+      {exercise:"Press inclinado",type:"pesas",sets:[{w:35,r:10},{w:35,r:8}],unit:"kg"}
+    ],startTime:new Date(new Date().setDate(new Date().getDate()-6)).toISOString()},
+    {date:d(5),dayKey:dk(5),entries:[
+      {exercise:"Jalón al pecho",type:"pesas",sets:[{w:45,r:10},{w:45,r:9},{w:42.5,r:10}],unit:"kg"},
+      {exercise:"Curl con barra",type:"pesas",sets:[{w:25,r:10},{w:25,r:8}],unit:"kg"}
+    ],startTime:new Date(new Date().setDate(new Date().getDate()-5)).toISOString()},
+    {date:d(4),dayKey:dk(4),entries:[
+      {exercise:"Press militar",type:"pesas",sets:[{w:30,r:10},{w:30,r:8}],unit:"kg"},
+      {exercise:"Elevaciones laterales",type:"pesas",sets:[{w:10,r:12},{w:10,r:10}],unit:"kg"}
+    ],startTime:new Date(new Date().setDate(new Date().getDate()-4)).toISOString()},
+    {date:d(3),dayKey:dk(3),entries:[
+      {exercise:"Sentadilla",type:"pesas",sets:[{w:60,r:8},{w:65,r:6},{w:55,r:10}],unit:"kg"},
+      {exercise:"Prensa de pierna",type:"pesas",sets:[{w:100,r:10},{w:100,r:8}],unit:"kg"}
+    ],startTime:new Date(new Date().setDate(new Date().getDate()-3)).toISOString()},
+    {date:d(1),dayKey:dk(1),entries:[
+      {exercise:"Press banca",type:"pesas",sets:[{w:52.5,r:10},{w:52.5,r:8},{w:50,r:10}],unit:"kg"},
+      {exercise:"Press inclinado",type:"pesas",sets:[{w:37.5,r:10},{w:37.5,r:8}],unit:"kg"}
+    ],startTime:new Date(new Date().setDate(new Date().getDate()-1)).toISOString()},
+  ];
+  ps('gym_sessions',db.sessions);
+})();
+
 // ── Init ──
 renderHeader();renderObj();renderHoy();startDurationInterval();
