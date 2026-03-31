@@ -537,10 +537,10 @@ function logBW(){
 }
 function delBW(i){db.bw.splice(i,1);ps('gym_bw',db.bw);renderBWChart();}
 function renderBWChart(){
-  const bws=db.bw,empty=document.getElementById('bw-empty'),canvas=document.getElementById('bw-chart'),hist=document.getElementById('bw-hist');
+  const bws=db.bw,empty=document.getElementById('bw-empty'),wrap=document.getElementById('bw-chart-wrap'),canvas=document.getElementById('bw-chart'),hist=document.getElementById('bw-hist');
   hist.innerHTML=[...bws].reverse().slice(0,8).map((b,i)=>`<div class="bw-hrow"><span class="bw-hdate">${fmtDF(b.date)}</span><span class="bw-hval">${b.v} kg</span><button class="bw-hdel" onclick="delBW(${bws.length-1-i})">×</button></div>`).join('');
-  if(bws.length<2){empty.style.display='flex';canvas.style.display='none';if(bwCh){bwCh.destroy();bwCh=null;}return;}
-  empty.style.display='none';canvas.style.display='block';if(bwCh)bwCh.destroy();
+  if(bws.length<2){empty.style.display='flex';if(wrap)wrap.style.display='none';if(bwCh){bwCh.destroy();bwCh=null;}return;}
+  empty.style.display='none';if(wrap)wrap.style.display='block';if(bwCh)bwCh.destroy();
   bwCh=new Chart(canvas.getContext('2d'),{type:'line',data:{labels:bws.map(b=>fmtD(b.date)),datasets:[{data:bws.map(b=>b.v),borderColor:'#3ab4ff',backgroundColor:ctx=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,100);g.addColorStop(0,'rgba(58,180,255,0.18)');g.addColorStop(1,'rgba(58,180,255,0)');return g;},borderWidth:2,pointBackgroundColor:'#3ab4ff',pointRadius:3,fill:true,tension:0.35}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1a1a',bodyColor:'#f2f2f2',callbacks:{label:ctx=>`${ctx.raw} kg`}}},scales:{x:{ticks:{color:'#3a3a3a',font:{size:8}},grid:{color:'rgba(255,255,255,0.03)'},border:{color:'#202020'}},y:{ticks:{color:'#3a3a3a',font:{size:8}},grid:{color:'rgba(255,255,255,0.03)'},border:{color:'#202020'}}}}});
 }
 
@@ -666,6 +666,10 @@ function toggleDrop(id){
   const body=document.getElementById(id),arrow=document.getElementById('arrow-'+id);
   body.classList.toggle('open');
   if(arrow)arrow.style.transform=body.classList.contains('open')?'rotate(90deg)':'';
+  // Re-render BW chart when its dropdown opens (canvas needs visible dimensions)
+  if(id==='datos-section'&&body.classList.contains('open')){
+    setTimeout(()=>{renderBWChart();updateIMC();},50);
+  }
 }
 
 // ── Feedback ──
@@ -787,7 +791,7 @@ function switchView(name,el){
   if(name==='hoy'){startDurationInterval();}else{stopDurationInterval();}
   if(name==='hist')renderHist();
   if(name==='prog')renderProg();
-  if(name==='perfil'){loadProfile();renderBWChart();renderRutina();}
+  if(name==='perfil'){loadProfile();renderRutina();setTimeout(renderBWChart,100);}
 }
 
 // ── PWA Install ──

@@ -292,7 +292,7 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
 .chart-title{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted2);letter-spacing:1.5px;text-transform:uppercase;}
 .pr-badge{background:var(--accent);color:#000;font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:1px;padding:2px 8px;border-radius:4px;}
 .chart-empty{display:flex;align-items:center;justify-content:center;height:200px;color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;}
-.chart-canvas-wrap{height:200px;}
+.chart-canvas-wrap{height:200px;position:relative;}
 
 .note-row{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:9px 12px;display:flex;align-items:flex-start;gap:10px;margin-bottom:5px;}
 .note-date{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted2);flex-shrink:0;padding-top:2px;min-width:44px;}
