@@ -39,8 +39,6 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
 .streak-lbl{font-size:8px;color:inherit;opacity:0.7;text-transform:uppercase;letter-spacing:0.5px;}
 .streak-fire{color:var(--orange);background:rgba(255,170,58,0.08);border:1px solid rgba(255,170,58,0.15);}
 .streak-bolt{color:var(--green);background:rgba(58,255,138,0.08);border:1px solid rgba(58,255,138,0.15);}
-.streak-beast{color:var(--accent);background:rgba(232,255,58,0.08);border:1px solid rgba(232,255,58,0.15);font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1px;animation:fadeSlideIn 0.3s ease forwards,beastPulse 2s ease-in-out infinite;}
-@keyframes beastPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,255,58,0);}50%{box-shadow:0 0 12px 2px rgba(232,255,58,0.15);}}
 
 /* ── SCROLL ── */
 .scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 var(--margin);padding-left:calc(var(--margin) + var(--safe-left));padding-right:calc(var(--margin) + var(--safe-right));-webkit-overflow-scrolling:touch;scrollbar-width:none;}
@@ -218,7 +216,13 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
 .dbtn{width:100%;background:transparent;color:var(--red);border:1px solid rgba(255,77,77,0.25);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;padding:10px;border-radius:9px;cursor:pointer;margin-top:7px;-webkit-tap-highlight-color:transparent;}
 
 /* ── HISTORIAL ── */
-.sess-list{display:flex;flex-direction:column;gap:6px;}
+.hist-month{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--text);padding:16px 0 4px;}
+.hist-month:first-child{padding-top:8px;}
+.hist-week{display:flex;align-items:center;justify-content:space-between;padding:8px 0 6px;}
+.hist-week-dates{font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:0.5px;}
+.hist-week-count{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted2);}
+.sess-list-inner{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+.sess-list{display:flex;flex-direction:column;}
 .sess-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;opacity:0;animation:fadeSlideIn 0.3s ease forwards;}
 .sess-card:nth-child(1){animation-delay:0s;}
 .sess-card:nth-child(2){animation-delay:0.05s;}

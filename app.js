@@ -163,9 +163,6 @@ function renderHeader(){
   const sc=document.getElementById('streak-constancia'),sp=document.getElementById('streak-progreso');
   if(sc){sc.style.display=constancia>=1?'flex':'none';document.getElementById('streak-c-n').textContent=constancia;}
   if(sp){sp.style.display=progreso>=1?'flex':'none';document.getElementById('streak-p-n').textContent=progreso;}
-  // Modo bestia
-  const mb=document.getElementById('modo-bestia');
-  if(mb)mb.style.display=(constancia>=3&&progreso>=3)?'flex':'none';
   // Duration timer in header
   updateDurationDisplay();
 }
@@ -249,20 +246,52 @@ function renderHoy(){
   h+=`</div>`;c.innerHTML=h;
 }
 
+function getWeekRange(dateStr){
+  const d=new Date(dateStr+'T12:00:00');
+  const day=d.getDay(),diff=d.getDate()-day+(day===0?-6:1);
+  const mon=new Date(d);mon.setDate(diff);
+  const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+  return{start:mon,end:sun,key:`${mon.getFullYear()}-W${String(Math.ceil((diff+6)/7)).padStart(2,'0')}`};
+}
+function fmtWeekRange(start,end){
+  return`${start.getDate()} ${MO[start.getMonth()]} – ${end.getDate()} ${MO[end.getMonth()]}`;
+}
+function renderSessCard(sess){
+  const label=db.routine[sess.dayKey]?.label||sess.dayKey;
+  const dur=sess.startTime&&sess.endTime?fmtDuration(sess.startTime,sess.endTime):'';
+  const rows=(sess.entries||[]).map(e=>{
+    let valHtml='',setsHtml='';
+    if(e.type==='cardio'){valHtml=`<div class="sess-val">${e.min||0}<small style="font-size:10px;color:var(--muted2)"> min</small></div>`;}
+    else{const mx=entryMaxWeight(e),sc=entrySetCount(e);valHtml=`<div class="sess-val">${mx||'?'}<small style="font-size:10px;color:var(--muted2)"> ${e.unit||'kg'}</small></div><div class="sess-val-sub">${sc.working} series</div>`;if(e.sets?.length)setsHtml=e.sets.map((s,i)=>`<span style="${s.warmup?'color:var(--muted)':''}">${i+1}. ${s.w}${e.unit||'kg'}×${s.r}${s.warmup?' (C)':''}</span>`).join(' · ');}
+    return`<div class="sess-row"><div><div class="sess-exname">${e.exercise}</div>${setsHtml?`<div class="sess-sets">${setsHtml}</div>`:''}${e.notes?`<div class="sess-note">"${e.notes}"</div>`:''}</div><div class="sess-maxval">${valHtml}</div></div>`;
+  }).join('');
+  return`<div class="sess-card"><div class="sess-hdr" onclick="this.nextElementSibling.classList.toggle('open')"><div><div class="sess-day">${(DL[sess.dayKey]||sess.dayKey).toUpperCase()}</div><div class="sess-date">${fmtDF(sess.date)}${dur?' · '+dur:''}</div></div><div class="sess-tag">${label.toUpperCase()}</div></div><div class="sess-body">${rows||'<div style="color:var(--muted2);font-size:10px;padding:8px 0;font-family:\'DM Mono\',monospace">Sin ejercicios</div>'}</div></div>`;
+}
 function renderHist(){
   const list=document.getElementById('sess-list'),sorted=[...db.sessions].sort((a,b)=>b.date.localeCompare(a.date));
   if(!sorted.length){list.innerHTML=`<div class="empty"><div class="empty-ico">📋</div><div class="empty-txt">Aún no hay sesiones.<br>¡Empieza hoy!</div></div>`;return;}
-  list.innerHTML=sorted.map(sess=>{
-    const label=db.routine[sess.dayKey]?.label||sess.dayKey;
-    const dur=sess.startTime&&sess.endTime?fmtDuration(sess.startTime,sess.endTime):'';
-    const rows=(sess.entries||[]).map(e=>{
-      let valHtml='',setsHtml='';
-      if(e.type==='cardio'){valHtml=`<div class="sess-val">${e.min||0}<small style="font-size:10px;color:var(--muted2)"> min</small></div>`;}
-      else{const mx=entryMaxWeight(e),sc=entrySetCount(e);valHtml=`<div class="sess-val">${mx||'?'}<small style="font-size:10px;color:var(--muted2)"> ${e.unit||'kg'}</small></div><div class="sess-val-sub">${sc.working} series</div>`;if(e.sets?.length)setsHtml=e.sets.map((s,i)=>`<span style="${s.warmup?'color:var(--muted)':''}">${i+1}. ${s.w}${e.unit||'kg'}×${s.r}${s.warmup?' (C)':''}</span>`).join(' · ');}
-      return`<div class="sess-row"><div><div class="sess-exname">${e.exercise}</div>${setsHtml?`<div class="sess-sets">${setsHtml}</div>`:''}${e.notes?`<div class="sess-note">"${e.notes}"</div>`:''}</div><div class="sess-maxval">${valHtml}</div></div>`;
-    }).join('');
-    return`<div class="sess-card"><div class="sess-hdr" onclick="this.nextElementSibling.classList.toggle('open')"><div><div class="sess-day">${(DL[sess.dayKey]||sess.dayKey).toUpperCase()}</div><div class="sess-date">${fmtDF(sess.date)}${dur?' · '+dur:''}</div></div><div class="sess-tag">${label.toUpperCase()}</div></div><div class="sess-body">${rows||'<div style="color:var(--muted2);font-size:10px;padding:8px 0;font-family:\'DM Mono\',monospace">Sin ejercicios</div>'}</div></div>`;
-  }).join('');
+  // Group by month → week
+  const months=new Map();
+  sorted.forEach(sess=>{
+    const[y,m]=sess.date.split('-');
+    const monthKey=`${y}-${m}`;
+    const monthLabel=`${MO[parseInt(m)-1]} ${y}`.toUpperCase();
+    if(!months.has(monthKey))months.set(monthKey,{label:monthLabel,weeks:new Map()});
+    const wk=getWeekRange(sess.date);
+    const weekLabel=fmtWeekRange(wk.start,wk.end);
+    const mo=months.get(monthKey);
+    if(!mo.weeks.has(wk.key))mo.weeks.set(wk.key,{label:weekLabel,sessions:[]});
+    mo.weeks.get(wk.key).sessions.push(sess);
+  });
+  let html='';
+  months.forEach(mo=>{
+    html+=`<div class="hist-month">${mo.label}</div>`;
+    mo.weeks.forEach(wk=>{
+      html+=`<div class="hist-week"><span class="hist-week-dates">${wk.label}</span><span class="hist-week-count">${wk.sessions.length} sesiones</span></div>`;
+      html+=`<div class="sess-list-inner">${wk.sessions.map(renderSessCard).join('')}</div>`;
+    });
+  });
+  list.innerHTML=html;
 }
 
 let selZone=null,selMuscle=null;
