@@ -213,30 +213,63 @@ function smartSuggestion(name){
   const last=entries[0],lastMax=entryMaxWeight(last);
   if(!lastMax)return null;
   const unit=last.unit||'kg';
-  // Check if user completed all reps at max weight in last session
+  const info=getExerciseInfo?.(name);
+
+  // Determine exercise type for increment size
+  const isCompoundLower=['Sentadilla','Peso muerto','Prensa de pierna','Peso muerto rumano','Peso muerto sumo','Hip thrust','Hack squat'].some(c=>name.includes(c));
+  const isIsolation=info?.muscleGroup?.length===1&&!['Sentadilla','Press banca','Press militar','Peso muerto','Dominadas','Remo con barra'].some(c=>name.includes(c));
+  const increment=isCompoundLower?5:isIsolation?1.25:2.5;
+
+  // Target reps based on objective
+  const targetReps=db.objective==='fuerza'?5:db.objective==='hipertrofia'?10:15;
+
+  // Analyze last session performance
   const workingSets=last.sets?.filter(s=>!s.warmup)||[];
   const setsAtMax=workingSets.filter(s=>parseFloat(s.w)===lastMax);
-  const targetReps=db.objective==='fuerza'?5:db.objective==='hipertrofia'?10:15;
-  const allRepsCompleted=setsAtMax.length>0&&setsAtMax.every(s=>parseInt(s.r)>=targetReps);
+  const lastSetReps=setsAtMax.length?parseInt(setsAtMax[setsAtMax.length-1].r)||0:0;
+  const exceededBy=lastSetReps-targetReps;
+
+  // Check if 2-for-2 rule is met: 2+ reps over target on last set, for 2 consecutive sessions
   if(entries.length>=2){
     const prevMax=entryMaxWeight(entries[1]);
-    // Dropped weight → suggest maintaining
-    if(lastMax<prevMax)return{weight:lastMax,msg:'Mantener peso',reason:'Bajaste peso la sesión pasada',color:'b'};
-    // Same weight for 3+ sessions with all reps done → suggest increase
+
+    // Weight dropped → maintain
+    if(lastMax<prevMax)return{weight:lastMax,msg:`Mantener ${lastMax}${unit}`,reason:'Bajaste peso — consolida antes de subir',color:'b'};
+
+    // 2-for-2 rule check
+    const prevWorkingSets=entries[1].sets?.filter(s=>!s.warmup)||[];
+    const prevSetsAtMax=prevWorkingSets.filter(s=>parseFloat(s.w)===prevMax);
+    const prevLastSetReps=prevSetsAtMax.length?parseInt(prevSetsAtMax[prevSetsAtMax.length-1].r)||0:0;
+    const prevExceeded=prevLastSetReps-targetReps;
+
+    if(exceededBy>=2&&prevExceeded>=2&&lastMax===prevMax){
+      const newWeight=lastMax+increment;
+      return{weight:newWeight,msg:`Subir a ${newWeight}${unit}`,reason:`Regla 2-for-2: +${increment}${unit}`,color:'g'};
+    }
+
+    // Same weight, 3 sessions dominating → ready
     if(entries.length>=3){
-      const allSameWeight=entries.every(e=>entryMaxWeight(e)===lastMax);
+      const allSame=entries.every(e=>entryMaxWeight(e)===lastMax);
       const allCompleted=entries.every(e=>{
         const ws=e.sets?.filter(s=>!s.warmup)||[];
         const atMax=ws.filter(s=>parseFloat(s.w)===entryMaxWeight(e));
         return atMax.length>0&&atMax.every(s=>parseInt(s.r)>=targetReps);
       });
-      if(allSameWeight&&allCompleted)return{weight:lastMax+2.5,msg:`Subir a ${(lastMax+2.5).toFixed(1)}${unit}`,reason:'3 sesiones dominando este peso',color:'g'};
+      if(allSame&&allCompleted){
+        const newWeight=lastMax+increment;
+        return{weight:newWeight,msg:`Subir a ${newWeight}${unit}`,reason:`3 sesiones dominando — listo para +${increment}${unit}`,color:'g'};
+      }
     }
   }
-  // Last session all reps completed → suggest small increase
-  if(allRepsCompleted)return{weight:lastMax+2.5,msg:`Subir a ${(lastMax+2.5).toFixed(1)}${unit}`,reason:'Completaste todas las reps',color:'g'};
-  // Didn't complete reps → maintain
-  return{weight:lastMax,msg:`Mantener ${lastMax}${unit}`,reason:'Completa todas las reps antes de subir',color:'b'};
+
+  // Exceeded target reps (but not 2-for-2 yet) → almost ready
+  if(exceededBy>=2)return{weight:lastMax,msg:`Mantener ${lastMax}${unit}`,reason:`Vas bien (+${exceededBy} reps) — repite para confirmar`,color:'o'};
+
+  // Completed target reps → on track
+  if(exceededBy>=0)return{weight:lastMax,msg:`Mantener ${lastMax}${unit}`,reason:'Buen ritmo — sigue así',color:'b'};
+
+  // Didn't reach target reps → maintain
+  return{weight:lastMax,msg:`Mantener ${lastMax}${unit}`,reason:`Faltan ${Math.abs(exceededBy)} reps — no subas aún`,color:'b'};
 }
 
 function renderHoy(){
