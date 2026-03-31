@@ -772,27 +772,29 @@ let pickerDay=null; // which day the exercise picker is open for
 function renderRutina(){
   document.getElementById('routine-days').innerHTML=DK.map(dk=>{
     const day=db.routine[dk]||{label:'',rest:false,exercises:[]};
-    const exCount=day.exercises?.length||0;
-    return`<div class="day-block" id="db-${dk}">
+    const isRest=day.rest;
+    const exList=(day.exercises||[]);
+    return`<div class="day-block ${isRest?'day-rest':''}" id="db-${dk}">
       <div class="day-hdr" onclick="toggleDay('${dk}')">
-        <div>
-          <div class="day-name">${DL[dk].toUpperCase()}</div>
-          <div class="day-sub">${day.rest?'Descanso':day.label||'Sin etiqueta'}</div>
+        <div class="day-hdr-left">
+          <span class="day-letter">${DL[dk].charAt(0)}</span>
+          <div>
+            <div class="day-name">${DL[dk].toUpperCase()}</div>
+            <div class="day-sub">${isRest?'Descanso':day.label||'Toca para configurar'}</div>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          ${!day.rest&&exCount?`<span class="day-count">${exCount}</span>`:''}
-          <div class="day-tog" id="dtog-${dk}">›</div>
-        </div>
+        <div class="day-tog" id="dtog-${dk}">›</div>
       </div>
+      ${!isRest&&exList.length?`<div class="day-preview">${exList.slice(0,3).map(ex=>`<span class="day-preview-chip">${ex.name}</span>`).join('')}${exList.length>3?`<span class="day-preview-more">+${exList.length-3}</span>`:''}</div>`:''}
       <div class="day-body" id="dbody-${dk}">
         <div class="tog-row">
-          <div class="tog ${day.rest?'on':''}" id="rtog-${dk}" onclick="toggleRest('${dk}')"><div class="tog-knob"></div></div>
+          <div class="tog ${isRest?'on':''}" id="rtog-${dk}" onclick="toggleRest('${dk}')"><div class="tog-knob"></div></div>
           <span class="tog-lbl">Día de descanso</span>
         </div>
-        <div id="dexsec-${dk}" style="${day.rest?'display:none':''}">
+        <div id="dexsec-${dk}" style="${isRest?'display:none':''}">
           <input class="dlbl-input" type="text" id="dlbl-${dk}" value="${day.label}" placeholder="Ej: Pecho + Tríceps" onchange="updateLabel('${dk}',this.value)">
           <div id="dexlist-${dk}">
-            ${(day.exercises||[]).map((ex,i)=>`<div class="exrow">
+            ${exList.map((ex,i)=>`<div class="exrow">
               <span class="exrow-name">${ex.name}</span>
               <span class="exrow-mg">${getExerciseMuscleGroup(ex.name)}</span>
               <button class="exrow-del" onclick="removeEx('${dk}',${i})">×</button>
