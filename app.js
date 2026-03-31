@@ -452,7 +452,7 @@ function renderProg(){
   const prs=findRecentPRs(3);
   document.getElementById('prog-prs').innerHTML=prs.length?`
     <div class="slbl">PRs RECIENTES</div>
-    <div class="prog-pr-list">${prs.map(pr=>`<div class="prog-pr-item"><span class="prog-pr-icon">✨</span><span class="prog-pr-name">${pr.exercise}</span><span class="prog-pr-val">${pr.weight}${pr.unit}</span><span class="prog-pr-date">${fmtD(pr.date)}</span></div>`).join('')}</div>`:'';
+    <div class="prog-pr-list">${prs.sort((a,b)=>b.weight-a.weight).map((pr,i)=>{const medals=['🥇','🥈','🥉'];return`<div class="prog-pr-item"><span class="prog-pr-icon">${medals[i]||i+1}</span><span class="prog-pr-name">${pr.exercise}</span><span class="prog-pr-val">${pr.weight}${pr.unit}</span><span class="prog-pr-date">${fmtD(pr.date)}</span></div>`;}).join('')}</div>`:'';
 
   // Exercise list
   renderProgExList();
