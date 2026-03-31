@@ -792,7 +792,8 @@ function getDayFocus(exercises){
 }
 
 function renderRutina(){
-  document.getElementById('routine-days').innerHTML=DK.map(dk=>{
+  const dkWeek=["lunes","martes","miercoles","jueves","viernes","sabado","domingo"];
+  document.getElementById('routine-days').innerHTML=dkWeek.map(dk=>{
     const day=db.routine[dk]||{label:'',rest:false,exercises:[]};
     const isRest=day.rest;
     const exList=(day.exercises||[]);
