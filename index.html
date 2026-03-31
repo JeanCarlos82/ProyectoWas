@@ -45,10 +45,22 @@
 
     <!-- PROGRESO -->
     <div class="view" id="view-prog">
-      <div class="slbl">GRUPO MUSCULAR</div>
-      <div class="mg-tabs-wrap"><div class="mg-tabs" id="mg-tabs"></div></div>
-      <div class="slbl">EJERCICIO</div>
-      <div class="ex-scroll"><div class="echips" id="echips"></div></div>
+      <input class="prog-search" type="text" id="prog-search" placeholder="Buscar ejercicio..." oninput="onProgSearch(this.value)">
+      <div id="prog-search-results"></div>
+      <div id="prog-browse">
+        <div class="slbl">RECIENTES</div>
+        <div class="ex-scroll"><div class="echips" id="recent-chips"></div></div>
+        <div class="slbl">ZONA</div>
+        <div class="mg-tabs-wrap"><div class="mg-tabs" id="zone-tabs"></div></div>
+        <div id="muscle-section" style="display:none">
+          <div class="slbl" id="muscle-label">MÚSCULO</div>
+          <div class="ex-scroll"><div class="echips" id="muscle-chips"></div></div>
+        </div>
+        <div id="exercise-section" style="display:none">
+          <div class="slbl">EJERCICIO</div>
+          <div class="ex-scroll"><div class="echips" id="echips"></div></div>
+        </div>
+      </div>
       <div class="stat-row" id="stat-row" style="display:none">
         <div class="sbox hi"><div class="slb">RÉCORD</div><div class="sv" id="sv-max" style="color:var(--accent)">—</div><div class="su" id="su-max">kg</div></div>
         <div class="sbox"><div class="slb">1RM EST</div><div class="sv" id="sv-1rm" style="color:var(--green)">—</div><div class="su" id="su-1rm">kg</div></div>

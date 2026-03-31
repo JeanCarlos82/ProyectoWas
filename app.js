@@ -208,25 +208,83 @@ function renderHist(){
   }).join('');
 }
 
-function buildMuscleGroups(){
-  const g=new Map();
-  Object.values(db.routine).forEach(d=>{if(!d.rest&&d.exercises?.length)d.exercises.forEach(ex=>{
-    const mg=typeof getExerciseMuscleGroup==='function'?getExerciseMuscleGroup(ex.name):d.label;
-    if(!g.has(mg))g.set(mg,[]);
-    if(!g.get(mg).find(e=>e.name===ex.name))g.get(mg).push(ex);
-  });});
-  return g;
+let selZone=null,selMuscle=null;
+
+// Get exercises the user has actually logged
+function getLoggedExercises(){
+  const names=new Set();
+  db.sessions.forEach(s=>s.entries?.forEach(e=>names.add(e.exercise)));
+  return names;
 }
+// Get last N unique exercises from sessions (most recent first)
+function getRecentExercises(n=5){
+  const seen=new Set(),result=[];
+  const sorted=[...db.sessions].sort((a,b)=>b.date.localeCompare(a.date));
+  for(const s of sorted){
+    for(const e of (s.entries||[]).reverse()){
+      if(!seen.has(e.exercise)&&e.type!=='cardio'){seen.add(e.exercise);result.push(e.exercise);}
+      if(result.length>=n)return result;
+    }
+  }
+  return result;
+}
+
 function renderProg(){
-  const groups=buildMuscleGroups(),labels=[...groups.keys()];
-  if(!selMG||!groups.has(selMG))selMG=labels[0]||null;
-  document.getElementById('mg-tabs').innerHTML=labels.map(l=>`<div class="mg-tab ${selMG===l?'active':''}" onclick="selectMG('${l.replace(/'/g,"\\'")}')"> ${l.toUpperCase()}</div>`).join('');
-  const exes=groups.get(selMG)||[];
-  document.getElementById('echips').innerHTML=exes.map(ex=>`<div class="echip ${selEx===ex.name?'active':''}" onclick="selectEx('${ex.name.replace(/'/g,"\\'")}')"> ${ex.name}</div>`).join('');
-  if(selEx&&!exes.find(e=>e.name===selEx))selEx=null;
+  const searchVal=document.getElementById('prog-search')?.value||'';
+  if(searchVal.trim()){onProgSearch(searchVal);return;}
+  document.getElementById('prog-search-results').innerHTML='';
+  document.getElementById('prog-browse').style.display='';
+
+  // Recientes
+  const recent=getRecentExercises(5);
+  document.getElementById('recent-chips').innerHTML=recent.length?
+    recent.map(name=>`<div class="echip ${selEx===name?'active':''}" onclick="selectEx('${name.replace(/'/g,"\\'")}')"> ${name}</div>`).join(''):
+    '<span style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--muted2)">Registra ejercicios para ver recientes</span>';
+
+  // Zone tabs
+  const zones=Object.keys(ZONES);
+  if(!selZone)selZone=zones[0];
+  document.getElementById('zone-tabs').innerHTML=zones.map(z=>`<div class="mg-tab ${selZone===z?'active':''}" onclick="selectZone('${z}')">${ZONES[z]}</div>`).join('');
+
+  // Muscle chips
+  const muscles=ZONE_MUSCLES[selZone]||[];
+  if(muscles.length>1){
+    document.getElementById('muscle-section').style.display='';
+    if(!selMuscle||!muscles.includes(selMuscle))selMuscle=muscles[0];
+    document.getElementById('muscle-chips').innerHTML=muscles.map(m=>`<div class="echip ${selMuscle===m?'active':''}" onclick="selectMuscle('${m.replace(/'/g,"\\'")}')"> ${m}</div>`).join('');
+  } else {
+    document.getElementById('muscle-section').style.display='none';
+    selMuscle=muscles[0]||null;
+  }
+
+  // Exercise chips — only logged ones
+  const logged=getLoggedExercises();
+  const allExes=selMuscle?EXERCISE_DB.filter(e=>e.muscleGroup.includes(selMuscle)):[];
+  const exes=allExes.filter(e=>logged.has(e.name));
+  const exSec=document.getElementById('exercise-section');
+  if(exes.length){
+    exSec.style.display='';
+    document.getElementById('echips').innerHTML=exes.map(ex=>`<div class="echip ${selEx===ex.name?'active':''}" onclick="selectEx('${ex.name.replace(/'/g,"\\'")}')"> ${ex.name}</div>`).join('');
+  } else {
+    exSec.style.display='';
+    document.getElementById('echips').innerHTML='<span style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--muted2)">Sin registros en este grupo</span>';
+  }
+
+  if(selEx&&!exes.find(e=>e.name===selEx)&&!recent.includes(selEx))selEx=null;
   if(selEx)renderExChart();else clearChart();
 }
-function selectMG(l){selMG=l;selEx=null;renderProg();clearChart();}
+function selectZone(z){selZone=z;selMuscle=null;selEx=null;renderProg();clearChart();}
+function selectMuscle(m){selMuscle=m;selEx=null;renderProg();clearChart();}
+function onProgSearch(q){
+  const container=document.getElementById('prog-search-results');
+  const browse=document.getElementById('prog-browse');
+  if(!q.trim()){container.innerHTML='';browse.style.display='';if(selEx)renderExChart();return;}
+  browse.style.display='none';
+  const logged=getLoggedExercises();
+  const results=searchExercises(q).filter(e=>logged.has(e.name));
+  if(!results.length){container.innerHTML='<div style="padding:16px 0;text-align:center;font-family:\'DM Mono\',monospace;font-size:9px;color:var(--muted2)">Sin resultados</div>';return;}
+  container.innerHTML='<div class="ex-scroll" style="padding:8px 0"><div class="echips">'+results.map(ex=>`<div class="echip ${selEx===ex.name?'active':''}" onclick="selectEx('${ex.name.replace(/'/g,"\\'")}')"> ${ex.name}</div>`).join('')+'</div></div>';
+}
 function clearChart(){
   document.getElementById('chart-empty').style.display='flex';
   document.getElementById('chart-cwrap').style.display='none';

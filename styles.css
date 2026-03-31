@@ -306,6 +306,11 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
 .tog.on .tog-knob{transform:translateX(18px);}
 .tog-lbl{font-size:12px;color:var(--muted2);}
 
+/* ── PROGRESS SEARCH ── */
+.prog-search{width:100%;background:var(--card);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:11px 14px 11px 36px;outline:none;margin:12px 0 4px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:12px center;}
+.prog-search:focus{border-color:var(--accent);}
+.prog-search::placeholder{color:var(--muted);}
+
 /* ── EXERCISE DROPDOWN ── */
 .addex-wrap{position:relative;}
 .ex-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--border2);border-radius:8px;max-height:200px;overflow-y:auto;z-index:50;scrollbar-width:none;margin-top:4px;}
