@@ -201,6 +201,43 @@ function prevEntry(name){
   for(const s of past){const e=s.entries?.find(e=>e.exercise===name);if(e)return e;}
   return null;
 }
+function getLastEntries(name,count=3){
+  const results=[];
+  const past=db.sessions.filter(s=>s.date!==today()).sort((a,b)=>b.date.localeCompare(a.date));
+  for(const s of past){const e=s.entries?.find(e=>e.exercise===name);if(e){results.push(e);if(results.length>=count)break;}}
+  return results;
+}
+function smartSuggestion(name){
+  const entries=getLastEntries(name,3);
+  if(!entries.length)return null;
+  const last=entries[0],lastMax=entryMaxWeight(last);
+  if(!lastMax)return null;
+  const unit=last.unit||'kg';
+  // Check if user completed all reps at max weight in last session
+  const workingSets=last.sets?.filter(s=>!s.warmup)||[];
+  const setsAtMax=workingSets.filter(s=>parseFloat(s.w)===lastMax);
+  const targetReps=db.objective==='fuerza'?5:db.objective==='hipertrofia'?10:15;
+  const allRepsCompleted=setsAtMax.length>0&&setsAtMax.every(s=>parseInt(s.r)>=targetReps);
+  if(entries.length>=2){
+    const prevMax=entryMaxWeight(entries[1]);
+    // Dropped weight → suggest maintaining
+    if(lastMax<prevMax)return{weight:lastMax,msg:'Mantener peso',reason:'Bajaste peso la sesión pasada',color:'b'};
+    // Same weight for 3+ sessions with all reps done → suggest increase
+    if(entries.length>=3){
+      const allSameWeight=entries.every(e=>entryMaxWeight(e)===lastMax);
+      const allCompleted=entries.every(e=>{
+        const ws=e.sets?.filter(s=>!s.warmup)||[];
+        const atMax=ws.filter(s=>parseFloat(s.w)===entryMaxWeight(e));
+        return atMax.length>0&&atMax.every(s=>parseInt(s.r)>=targetReps);
+      });
+      if(allSameWeight&&allCompleted)return{weight:lastMax+2.5,msg:`Subir a ${(lastMax+2.5).toFixed(1)}${unit}`,reason:'3 sesiones dominando este peso',color:'g'};
+    }
+  }
+  // Last session all reps completed → suggest small increase
+  if(allRepsCompleted)return{weight:lastMax+2.5,msg:`Subir a ${(lastMax+2.5).toFixed(1)}${unit}`,reason:'Completaste todas las reps',color:'g'};
+  // Didn't complete reps → maintain
+  return{weight:lastMax,msg:`Mantener ${lastMax}${unit}`,reason:'Completa todas las reps antes de subir',color:'b'};
+}
 
 function renderHoy(){
   const dk=todayDK(),day=db.routine[dk],ts=db.sessions.find(s=>s.date===today()),obj=OBJS[db.objective],c=document.getElementById('hoy-content');
@@ -220,16 +257,16 @@ function renderHoy(){
       </div>`;
     } else {
       const mx=entryMaxWeight(entry),prevMx=entryMaxWeight(prev);
-      const sugg=prevMx?(prevMx+2.5).toFixed(1):null;
       const unit=entry?.unit||prev?.unit||'kg';
       const best1rm=logged?entryBest1RM(entry):0;
+      const suggestion=!logged?smartSuggestion(ex.name):null;
       h+=`<div class="ex-card ${logged?'logged':''}" onclick="openModal('${sn}','pesas')">
         <div class="ex-l">
           <div class="ex-name">${ex.name}</div>
           <div class="ex-sub">${logged?entrySummaryText(entry):'Toca para registrar'}</div>
           <div class="ex-chips">
             ${prevMx?`<span class="chip b">Prev: ${prevMx}${prev?.unit||'kg'}</span>`:''}
-            ${sugg&&!logged?`<span class="chip g">+2.5 → ${sugg}kg</span>`:''}
+            ${suggestion?`<span class="chip ${suggestion.color}">${suggestion.msg}</span>`:''}
             ${best1rm?`<span class="chip o">1RM: ${best1rm}${unit}</span>`:''}
           </div>
         </div>
@@ -735,7 +772,12 @@ function openModal(name,type){
   const del=document.getElementById('dbtn');
   let hints='';
   if(type!=='cardio'){
-    if(prev){const prevMx=entryMaxWeight(prev),sugg=(prevMx+2.5).toFixed(1);hints+=`<div class="mhint b"><span class="mhint-l">Sesión anterior</span><span class="mhint-v b">${prevMx} ${prev.unit||'kg'}</span></div><div class="mhint g"><span class="mhint-l">Sugerido hoy (+2.5)</span><span class="mhint-v g">${sugg} ${prev.unit||'kg'}</span></div>`;}
+    if(prev){
+      const prevMx=entryMaxWeight(prev);
+      hints+=`<div class="mhint b"><span class="mhint-l">Sesión anterior</span><span class="mhint-v b">${prevMx} ${prev.unit||'kg'}</span></div>`;
+      const suggestion=smartSuggestion(name);
+      if(suggestion)hints+=`<div class="mhint ${suggestion.color}"><span class="mhint-l">${suggestion.reason}</span><span class="mhint-v ${suggestion.color}">${suggestion.msg}</span></div>`;
+    }
     let prevBlock='';
     if(prev?.sets?.length){const rows=prev.sets.map((s,i)=>`<div class="prev-set-row"><span class="prev-set-num">${i+1}</span><span class="prev-set-val ${s.warmup?'prev-warm':''}">${s.w}${prev.unit||'kg'}</span><span class="prev-set-x">×</span><span class="prev-set-val">${s.r} reps</span>${s.warmup?'<span style="font-size:7px;color:var(--muted)"> C</span>':''}</div>`).join('');prevBlock=`<div class="prev-sets-block"><div class="prev-sets-label">ÚLTIMA SESIÓN</div>${rows}</div>`;}
     document.getElementById('prev-sets-block').innerHTML=prevBlock;
