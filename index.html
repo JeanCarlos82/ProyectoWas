@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0d0d0d">
   <title>GYM</title>
+  <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -21,6 +23,7 @@
     </div>
     <div class="hdr-right">
       <div class="hdr-badge" id="hdr-badge">—</div>
+      <div class="hdr-timer" id="hdr-timer" style="display:none"><span class="hdr-timer-dot"></span>0:00</div>
       <div class="streak" id="streak" style="display:none">🔥 <span id="streak-n">0</span> días</div>
     </div>
   </div>
@@ -47,6 +50,7 @@
       <div class="ex-scroll"><div class="echips" id="echips"></div></div>
       <div class="stat-row" id="stat-row" style="display:none">
         <div class="sbox hi"><div class="slb">RÉCORD</div><div class="sv" id="sv-max" style="color:var(--accent)">—</div><div class="su" id="su-max">kg</div></div>
+        <div class="sbox"><div class="slb">1RM EST</div><div class="sv" id="sv-1rm" style="color:var(--green)">—</div><div class="su" id="su-1rm">kg</div></div>
         <div class="sbox"><div class="slb">VOLUMEN</div><div class="sv" id="sv-vol" style="color:var(--orange)">—</div><div class="su">kg total</div></div>
         <div class="sbox"><div class="slb">SESIONES</div><div class="sv" id="sv-cnt" style="color:var(--blue)">—</div><div class="su">registros</div></div>
       </div>
@@ -58,6 +62,7 @@
         <div class="chart-empty" id="chart-empty">Selecciona un ejercicio</div>
         <div class="chart-canvas-wrap" id="chart-cwrap" style="display:none"><canvas id="prog-chart"></canvas></div>
       </div>
+      <div class="plateau-alert" id="plateau-alert" style="display:none"></div>
       <div id="notes-sec" style="display:none">
         <div class="slbl">NOTAS</div>
         <div id="notes-list"></div>
@@ -76,6 +81,17 @@
             <div class="obj-opt" id="obj-hipertrofia" onclick="setObj('hipertrofia')"><div class="obj-opt-l">HIPER</div><div class="obj-opt-s">6–12 reps</div></div>
             <div class="obj-opt" id="obj-resistencia" onclick="setObj('resistencia')"><div class="obj-opt-l">RESIST</div><div class="obj-opt-s">13–20 reps</div></div>
           </div>
+        </div>
+      </div>
+
+      <div class="slbl">TEMPORIZADOR DE DESCANSO</div>
+      <div class="psec">
+        <div class="plbl">Tiempo entre series</div>
+        <div class="timer-opts" style="margin-top:6px">
+          <div class="timer-opt" data-sec="60" onclick="setRestTime(60)">1:00</div>
+          <div class="timer-opt" data-sec="90" onclick="setRestTime(90)">1:30</div>
+          <div class="timer-opt" data-sec="120" onclick="setRestTime(120)">2:00</div>
+          <div class="timer-opt" data-sec="180" onclick="setRestTime(180)">3:00</div>
         </div>
       </div>
 
@@ -108,12 +124,13 @@
         <div class="bw-hist" id="bw-hist"></div>
       </div>
 
-      <div class="slbl">BACKUP</div>
+      <div class="slbl">APP</div>
       <div class="psec">
         <div class="backup-row">
           <div class="backup-btn exp" onclick="exportData()"><div class="backup-lbl">EXPORTAR</div><div class="backup-sub">Guardar JSON</div></div>
           <label class="backup-btn imp" style="cursor:pointer"><div class="backup-lbl">IMPORTAR</div><div class="backup-sub">Restaurar JSON</div><input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
         </div>
+        <button class="install-btn" id="install-btn" onclick="installPWA()" style="display:none">INSTALAR APP</button>
       </div>
 
       <div class="slbl">RUTINA</div>
@@ -142,6 +159,16 @@
   </nav>
 </div>
 
+<!-- REST TIMER BAR -->
+<div class="timer-bar" id="timer-bar" style="display:none">
+  <div class="timer-ring" id="timer-ring"></div>
+  <span class="timer-time" id="timer-time">1:30</span>
+  <div class="timer-actions">
+    <button class="timer-skip" onclick="skipTimer()">SALTAR</button>
+    <button class="timer-add" onclick="addTimerTime(30)">+30s</button>
+  </div>
+</div>
+
 <!-- MODAL -->
 <div class="overlay" id="overlay" onclick="closeModal(event)">
   <div class="modal">
@@ -164,6 +191,7 @@
         <div class="vol-box"><div class="vol-label">SERIES</div><div class="vol-val" id="vol-sets">0</div></div>
         <div class="vol-box"><div class="vol-label">MÁXIMO</div><div class="vol-val" id="vol-max" style="color:var(--accent)">0</div></div>
         <div class="vol-box"><div class="vol-label">VOLUMEN</div><div class="vol-val" id="vol-total" style="color:var(--orange)">0</div></div>
+        <div class="vol-box"><div class="vol-label">1RM EST</div><div class="vol-val" id="vol-1rm" style="color:var(--blue)">—</div></div>
       </div>
     </div>
     <div id="m-csec" style="display:none">
