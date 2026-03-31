@@ -479,7 +479,9 @@ function renderProgExList(filter){
   const trendIcons={up:'↑',down:'↓',stable:'→',new:'●'};
   const trendColors={up:'var(--green)',down:'var(--red)',stable:'var(--muted2)',new:'var(--blue)'};
 
-  container.innerHTML=`<div class="slbl">EJERCICIOS</div><div class="prog-ex-list">${exercises.map(name=>{
+  const titleEl=document.getElementById('prog-ex-title');
+  if(titleEl)titleEl.textContent=`EJERCICIOS (${exercises.length})`;
+  container.innerHTML=`<div class="prog-ex-list">${exercises.map(name=>{
     const lastSess=db.sessions.find(s=>s.entries?.some(e=>e.exercise===name));
     const lastEntry=lastSess?.entries?.find(e=>e.exercise===name);
     const mx=entryMaxWeight(lastEntry);
@@ -503,13 +505,20 @@ function onProgSearch(q){renderProgExList(q);}
 
 function selectEx(name){
   selEx=selEx===name?null:name;
-  renderProg();
+  renderProgExList();
+  if(selEx){
+    document.getElementById('prog-detail').style.display='block';
+    renderExChart();
+    // Scroll to detail
+    setTimeout(()=>document.getElementById('prog-detail').scrollIntoView({behavior:'smooth',block:'start'}),100);
+  } else {
+    document.getElementById('prog-detail').style.display='none';
+  }
 }
 
 function clearChart(){
   document.getElementById('prog-detail').style.display='none';
 }
-function selectEx(name){selEx=name;renderProg();renderExChart();}
 
 // ── Linear regression for trend line ──
 function linearRegression(pts){
@@ -571,6 +580,22 @@ function renderExChart(){
   const wN=pts.filter(p=>p.notes).reverse().slice(0,5),ns=document.getElementById('notes-sec');
   if(wN.length){ns.style.display='block';document.getElementById('notes-list').innerHTML=wN.map(p=>`<div class="note-row"><div class="note-date">${fmtD(p.date)}</div><div class="note-text">${p.notes}</div><div class="note-wt">${p.mx}<span style="font-size:8px;color:var(--muted2)"> ${p.unit}</span></div></div>`).join('');}
   else ns.style.display='none';
+
+  // Best sets by rep range
+  const allSets=[];
+  db.sessions.forEach(s=>{const e=s.entries?.find(e=>e.exercise===selEx);if(e?.sets)e.sets.filter(st=>!st.warmup).forEach(st=>allSets.push({w:parseFloat(st.w)||0,r:parseInt(st.r)||0,date:s.date,unit:e.unit||'kg'}));});
+  const bestByReps={};
+  allSets.forEach(s=>{if(!bestByReps[s.r]||s.w>bestByReps[s.r].w)bestByReps[s.r]=s;});
+  const repRanges=Object.keys(bestByReps).map(Number).sort((a,b)=>a-b);
+  document.getElementById('prog-best-sets').innerHTML=repRanges.length?`
+    <div class="slbl">MEJORES SETS POR REPS</div>
+    <div class="prog-best-list">${repRanges.map(r=>{const s=bestByReps[r];return`<div class="prog-best-row"><span class="prog-best-reps">${r} rep${r>1?'s':''}</span><span class="prog-best-weight">${s.w}${s.unit}</span><span class="prog-best-date">${fmtD(s.date)}</span></div>`;}).join('')}</div>`:'';
+
+  // Recent sessions for this exercise
+  const recentSess=db.sessions.filter(s=>s.entries?.some(e=>e.exercise===selEx)).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  document.getElementById('prog-recent-sets').innerHTML=recentSess.length?`
+    <div class="slbl">ÚLTIMAS SESIONES</div>
+    <div class="prog-recent-list">${recentSess.map(s=>{const e=s.entries.find(e=>e.exercise===selEx);const mx=entryMaxWeight(e);const vol=entryVolume(e);const sc=e.sets?.filter(st=>!st.warmup).length||0;return`<div class="prog-recent-row"><span class="prog-recent-date">${fmtD(s.date)}</span><span class="prog-recent-info">${sc}×${mx}${e.unit||'kg'}</span><span class="prog-recent-vol">${Math.round(vol)}kg vol</span></div>`;}).join('')}</div>`:'';
 }
 
 function loadProfile(){

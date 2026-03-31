@@ -62,8 +62,16 @@
       </div>
       <div id="prog-summary"></div>
       <div id="prog-prs"></div>
-      <input class="prog-search" type="text" id="prog-search" placeholder="Buscar ejercicio..." oninput="onProgSearch(this.value)">
-      <div id="prog-exercise-list"></div>
+      <div class="psec prog-ex-card">
+        <div class="drop-header" onclick="toggleDrop('prog-ex-body')">
+          <span class="drop-title" id="prog-ex-title">EJERCICIOS</span>
+          <span class="drop-arrow rot" id="arrow-prog-ex-body">›</span>
+        </div>
+        <div class="drop-body open" id="prog-ex-body">
+          <input class="prog-search" type="text" id="prog-search" placeholder="Buscar ejercicio..." oninput="onProgSearch(this.value)" style="margin:0 0 8px">
+          <div id="prog-exercise-list"></div>
+        </div>
+      </div>
       <div id="prog-detail" style="display:none">
         <div id="prog-detail-header"></div>
         <div class="stat-row" id="stat-row">
@@ -81,6 +89,8 @@
           <div class="chart-canvas-wrap" id="chart-cwrap"><canvas id="prog-chart"></canvas></div>
         </div>
         <div class="plateau-alert" id="plateau-alert" style="display:none"></div>
+        <div id="prog-best-sets"></div>
+        <div id="prog-recent-sets"></div>
         <div id="notes-sec" style="display:none">
           <div class="slbl">NOTAS</div>
           <div id="notes-list"></div>
