@@ -645,11 +645,37 @@ function renderRutina(){
               <button class="exrow-del" onclick="removeEx('${dk}',${i})">×</button>
             </div>`).join('')}
           </div>
-          <button class="picker-open-btn" onclick="openExPicker('${dk}')">+ AGREGAR EJERCICIOS</button>
+          <div class="routine-actions">
+            <button class="picker-open-btn" onclick="openExPicker('${dk}')">+ AGREGAR EJERCICIOS</button>
+            ${otherDaysWithExercises(dk).length?`<button class="copy-day-btn" onclick="showCopyMenu('${dk}')">COPIAR DE...</button>`:''}
+          </div>
+          <div class="copy-menu" id="copy-menu-${dk}" style="display:none"></div>
         </div>
       </div>
     </div>`;
   }).join('');
+}
+
+// ── Copy Day ──
+function otherDaysWithExercises(dk){
+  return DK.filter(d=>d!==dk&&db.routine[d]&&!db.routine[d].rest&&db.routine[d].exercises?.length>0);
+}
+function showCopyMenu(dk){
+  const menu=document.getElementById('copy-menu-'+dk);
+  if(menu.style.display==='flex'){menu.style.display='none';return;}
+  const others=otherDaysWithExercises(dk);
+  menu.innerHTML=others.map(d=>`<button class="copy-day-opt" onclick="copyDayExercises('${d}','${dk}')">${DL[d].toUpperCase()}<span class="copy-day-count">${db.routine[d].exercises.length} ej.</span></button>`).join('');
+  menu.style.display='flex';
+}
+function copyDayExercises(fromDk,toDk){
+  const existing=new Set((db.routine[toDk].exercises||[]).map(e=>e.name));
+  const toAdd=(db.routine[fromDk].exercises||[]).filter(e=>!existing.has(e.name));
+  if(!toAdd.length){toast('Todos los ejercicios ya están');return;}
+  db.routine[toDk].exercises.push(...toAdd.map(e=>({name:e.name,type:e.type})));
+  ps('gym_routine',db.routine);
+  renderRutina();renderHoy();
+  document.getElementById('dbody-'+toDk)?.classList.add('open');
+  toast(`${toAdd.length} ejercicios copiados`);
 }
 
 // ── Exercise Picker (modal-style) ──
@@ -668,8 +694,28 @@ function closeExPicker(e){
 function renderPickerContent(query,existing){
   const container=document.getElementById('picker-list');
   let exercises=query.trim()?searchExercises(query):EXERCISE_DB;
-  // Group by zone then muscle
   let html='';
+
+  // "EN TU RUTINA" section — exercises from other days (only when no search query)
+  if(!query.trim()&&pickerDay){
+    const routineExes=new Set();
+    DK.forEach(dk=>{if(dk!==pickerDay&&db.routine[dk]?.exercises?.length)db.routine[dk].exercises.forEach(e=>routineExes.add(e.name));});
+    const fromRoutine=[...routineExes].filter(name=>!existing?.has(name));
+    if(fromRoutine.length){
+      html+=`<div class="pk-zone" style="color:var(--accent)">EN TU RUTINA</div>`;
+      fromRoutine.forEach(name=>{
+        const ex=EXERCISE_DB.find(e=>e.name===name);
+        const type=ex?.type||'pesas';
+        html+=`<div class="pk-item" onclick="togglePickerEx('${name.replace(/'/g,"\\'")}','${type}',this)">
+          <span class="pk-check"></span>
+          <span class="pk-name">${name}</span>
+          <span class="pk-mg">${ex?.muscleGroup?.[0]||''}</span>
+        </div>`;
+      });
+    }
+  }
+
+  // Group by zone then muscle
   const zones=query.trim()?null:Object.keys(ZONES);
   if(zones){
     zones.forEach(z=>{
