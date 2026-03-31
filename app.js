@@ -808,18 +808,15 @@ function renderRutina(){
         </div>
         <div class="day-tog" id="dtog-${dk}">›</div>
       </div>
-      ${!isRest&&exList.length?`<div class="day-preview">${exList.slice(0,3).map(ex=>`<span class="day-preview-chip">${ex.name}</span>`).join('')}${exList.length>3?`<span class="day-preview-more">+${exList.length-3}</span>`:''}</div>`:''}
       <div class="day-body" id="dbody-${dk}">
         <div class="tog-row">
           <div class="tog ${isRest?'on':''}" id="rtog-${dk}" onclick="toggleRest('${dk}')"><div class="tog-knob"></div></div>
           <span class="tog-lbl">Día de descanso</span>
         </div>
         <div id="dexsec-${dk}" style="${isRest?'display:none':''}">
-          <input class="dlbl-input" type="text" id="dlbl-${dk}" value="${day.label}" placeholder="Ej: Pecho + Tríceps" onchange="updateLabel('${dk}',this.value)">
           <div id="dexlist-${dk}">
             ${exList.map((ex,i)=>`<div class="exrow">
               <span class="exrow-name">${ex.name}</span>
-              <span class="exrow-mg">${getExerciseMuscleGroup(ex.name)}</span>
               <button class="exrow-del" onclick="removeEx('${dk}',${i})">×</button>
             </div>`).join('')}
           </div>
