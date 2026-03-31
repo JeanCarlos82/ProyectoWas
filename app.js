@@ -664,7 +664,7 @@ function showCopyMenu(dk){
   const menu=document.getElementById('copy-menu-'+dk);
   if(menu.style.display==='flex'){menu.style.display='none';return;}
   const others=otherDaysWithExercises(dk);
-  menu.innerHTML=others.map(d=>`<button class="copy-day-opt" onclick="copyDayExercises('${d}','${dk}')">${DL[d].toUpperCase()}<span class="copy-day-count">${db.routine[d].exercises.length} ej.</span></button>`).join('');
+  menu.innerHTML=others.map(d=>`<button class="copy-day-opt" onclick="copyDayExercises('${d}','${dk}')">${DL[d].toUpperCase()}</button>`).join('');
   menu.style.display='flex';
 }
 function copyDayExercises(fromDk,toDk){
