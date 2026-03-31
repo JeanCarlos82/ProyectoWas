@@ -91,11 +91,63 @@ function fmtElapsed(startISO){
   return`${h}:${m.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
 }
 
+// ── Racha de Constancia ──
 function calcStreak(){
   const dates=new Set(db.sessions.filter(s=>s.entries?.length>0).map(s=>s.date));
   let n=0,d=new Date();
   if(!dates.has(today()))d.setDate(d.getDate()-1);
-  while(true){const k=d.toISOString().split('T')[0];if(!dates.has(k))break;if(!db.routine[DK[d.getDay()]]?.rest)n++;d.setDate(d.getDate()-1);}
+  while(true){
+    const k=d.toISOString().split('T')[0];
+    const dk=DK[d.getDay()];
+    const isRest=db.routine[dk]?.rest;
+    if(isRest){d.setDate(d.getDate()-1);continue;}
+    if(!dates.has(k))break;
+    n++;d.setDate(d.getDate()-1);
+  }
+  return n;
+}
+
+// ── Racha de Progreso ──
+function sessionImproved(sess){
+  if(!sess||!sess.entries?.length)return false;
+  // Find the previous session for the same day of the week
+  const prevSessions=db.sessions.filter(s=>s.dayKey===sess.dayKey&&s.date<sess.date&&s.entries?.length>0).sort((a,b)=>b.date.localeCompare(a.date));
+  if(!prevSessions.length)return true; // First session ever for this day = counts as progress
+  const prev=prevSessions[0];
+  // Check each exercise in current session
+  for(const entry of sess.entries){
+    if(entry.type==='cardio')continue;
+    const prevEntry=prev.entries?.find(e=>e.exercise===entry.exercise);
+    if(!prevEntry)continue;
+    const curMax=entryMaxWeight(entry),prevMax=entryMaxWeight(prevEntry);
+    if(curMax&&prevMax&&curMax>prevMax)return true; // Weight up
+    const curVol=entryVolume(entry),prevVol=entryVolume(prevEntry);
+    if(curVol>prevVol)return true; // Volume up
+    // Same weight, more reps on best set
+    if(curMax&&prevMax&&curMax===prevMax){
+      const curBestReps=Math.max(...entry.sets.filter(s=>!s.warmup&&parseFloat(s.w)===curMax).map(s=>parseInt(s.r)||0));
+      const prevBestReps=Math.max(...prevEntry.sets.filter(s=>!s.warmup&&parseFloat(s.w)===prevMax).map(s=>parseInt(s.r)||0));
+      if(curBestReps>prevBestReps)return true;
+    }
+  }
+  // Check for any all-time PR
+  for(const entry of sess.entries){
+    if(entry.type==='cardio')continue;
+    const curMax=entryMaxWeight(entry);
+    if(!curMax)continue;
+    const allPrev=db.sessions.filter(s=>s.date<sess.date).flatMap(s=>s.entries||[]).filter(e=>e.exercise===entry.exercise);
+    const allTimeMax=allPrev.length?Math.max(...allPrev.map(e=>entryMaxWeight(e)||0)):0;
+    if(curMax>allTimeMax)return true; // New PR
+  }
+  return false;
+}
+function calcProgressStreak(){
+  const sorted=[...db.sessions].filter(s=>s.entries?.length>0).sort((a,b)=>b.date.localeCompare(a.date));
+  let n=0;
+  for(const sess of sorted){
+    if(sessionImproved(sess))n++;
+    else break;
+  }
   return n;
 }
 
@@ -106,9 +158,14 @@ function renderHeader(){
   const b=document.getElementById('hdr-badge');
   if(!day||day.rest){b.textContent='DESCANSO';b.className='hdr-badge rest';}
   else{b.textContent=day.label.toUpperCase();b.className='hdr-badge';}
-  const s=calcStreak(),sp=document.getElementById('streak');
-  if(s>=2){sp.style.display='flex';document.getElementById('streak-n').textContent=s;}
-  else sp.style.display='none';
+  // Dual streaks
+  const constancia=calcStreak(),progreso=calcProgressStreak();
+  const sc=document.getElementById('streak-constancia'),sp=document.getElementById('streak-progreso');
+  if(sc){sc.style.display=constancia>=1?'flex':'none';document.getElementById('streak-c-n').textContent=constancia;}
+  if(sp){sp.style.display=progreso>=1?'flex':'none';document.getElementById('streak-p-n').textContent=progreso;}
+  // Modo bestia
+  const mb=document.getElementById('modo-bestia');
+  if(mb)mb.style.display=(constancia>=3&&progreso>=3)?'flex':'none';
   // Duration timer in header
   updateDurationDisplay();
 }
