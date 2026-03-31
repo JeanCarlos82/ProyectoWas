@@ -643,6 +643,7 @@ function updateIMC(){
   // ── TDEE ──
   const actMult=[1.2,1.375,1.55,1.725,1.9];
   const actLabels=['Sedentario','Ligero','Moderado','Activo','Muy activo'];
+  const actExamples=['Oficina, sin ejercicio','Caminar, 1-2 días gym','3-4 días gym','5-6 días gym','2x al día, trabajo físico'];
   const actLevel=db.profile.activityLevel||2;
   const tdee=tmb*actMult[actLevel];
 
@@ -672,7 +673,7 @@ function updateIMC(){
     <div class="imc-bar">${bars}</div>
     <div class="health-activity">
       <div class="health-label" style="margin-bottom:6px">NIVEL DE ACTIVIDAD</div>
-      <div class="activity-opts">${actLabels.map((l,i)=>`<div class="activity-opt ${actLevel===i?'active':''}" onclick="setActivity(${i})">${l}</div>`).join('')}</div>
+      <div class="activity-opts">${actLabels.map((l,i)=>`<div class="activity-opt ${actLevel===i?'active':''}" onclick="setActivity(${i})"><span class="activity-name">${l}</span><span class="activity-example">${actExamples[i]}</span></div>`).join('')}</div>
     </div>`;
   wrap.innerHTML=html;
 }

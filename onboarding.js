@@ -83,7 +83,7 @@ function buildRoutineFromWizard(templateKey,selectedDays){
 // ── Wizard State ──
 const WIZARD_STEPS=4;
 let wizardStep=1;
-let wizardData={name:'',age:'',sex:'H',height:'',weight:'',goal:null,experience:null,selectedDays:[]};
+let wizardData={name:'',age:'',sex:'H',height:'',weight:'',activityLevel:2,goal:null,experience:null,selectedDays:[]};
 
 function showWizard(){
   const hasExisting=Object.values(db.routine).some(d=>d.exercises?.length>0);
@@ -91,7 +91,7 @@ function showWizard(){
     if(!confirm('Esto reemplazará tu rutina actual. ¿Continuar?'))return;
   }
   wizardStep=1;
-  wizardData={name:db.profile.name||'',age:db.profile.age||'',sex:db.profile.sex||'H',height:db.profile.height||'',weight:db.profile.weight||'',goal:null,experience:null,selectedDays:[]};
+  wizardData={name:db.profile.name||'',age:db.profile.age||'',sex:db.profile.sex||'H',height:db.profile.height||'',weight:db.profile.weight||'',activityLevel:db.profile.activityLevel||2,goal:null,experience:null,selectedDays:[]};
   document.getElementById('wizard-overlay').style.display='flex';
   renderWizardStep();
 }
@@ -117,6 +117,14 @@ function renderWizardStep(){
         <div class="wiz-row">
           <div class="wiz-field"><label class="wiz-label">ALTURA (cm)</label><input class="wiz-input wiz-num" type="number" id="wiz-height" value="${wizardData.height}" placeholder="175" min="100" max="230"></div>
           <div class="wiz-field"><label class="wiz-label">PESO (kg)</label><input class="wiz-input wiz-num" type="number" id="wiz-weight" value="${wizardData.weight}" placeholder="75" min="30" max="300" step="0.1"></div>
+        </div>
+        <div class="wiz-field" style="margin-top:6px">
+          <label class="wiz-label">NIVEL DE ACTIVIDAD</label>
+          <div class="wiz-activity-opts">
+            ${[{i:0,l:'Sedentario',d:'Oficina, sin ejercicio'},{i:1,l:'Ligero',d:'Caminar, 1-2 días gym'},{i:2,l:'Moderado',d:'3-4 días gym'},{i:3,l:'Activo',d:'5-6 días gym'},{i:4,l:'Muy activo',d:'2x al día, trabajo físico'}].map(a=>
+              `<div class="wiz-activity ${wizardData.activityLevel===a.i?'active':''}" onclick="wizardData.activityLevel=${a.i};renderWizardStep()"><span class="wiz-act-name">${a.l}</span><span class="wiz-act-desc">${a.d}</span></div>`
+            ).join('')}
+          </div>
         </div>
       </div>
       <button class="sbtn" onclick="wizNextProfile()" style="margin-top:16px">CONTINUAR</button>`;
@@ -249,6 +257,7 @@ function applyWizardRoutine(customize){
     sex:wizardData.sex||'H',
     height:wizardData.height||'175',
     weight:wizardData.weight||'75',
+    activityLevel:wizardData.activityLevel??2,
   };
   ps('gym_profile',db.profile);
   localStorage.setItem('gym_onboarded','true');
