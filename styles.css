@@ -301,15 +301,18 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .obj-opt.active .obj-opt-l{color:var(--accent);}
 .obj-opt.active .obj-opt-s{color:rgba(232,255,58,0.5);}
 
-.imc-card{background:var(--card2);border-radius:9px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;}
-.imc-num{font-family:'Bebas Neue',sans-serif;font-size:42px;line-height:1;}
-.imc-cat{font-family:'DM Mono',monospace;font-size:9px;margin-top:2px;}
-.imc-r{text-align:right;}
-.imc-rlbl{font-family:'DM Mono',monospace;font-size:7px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
-.imc-range{font-family:'Bebas Neue',sans-serif;font-size:17px;}
-.imc-diff{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted2);margin-top:2px;}
-.imc-bar{display:flex;gap:3px;margin-top:10px;border-radius:3px;overflow:hidden;height:4px;}
+/* ── HEALTH METRICS ── */
+.health-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.health-card{background:var(--card2);border-radius:10px;padding:12px 10px;text-align:center;}
+.health-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+.health-value{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;color:var(--text);}
+.health-sub{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);margin-top:3px;}
+.imc-bar{display:flex;gap:3px;border-radius:3px;overflow:hidden;height:5px;margin-bottom:10px;}
 .imc-seg{flex:1;}
+.health-activity{margin-top:4px;}
+.activity-opts{display:flex;gap:4px;flex-wrap:wrap;}
+.activity-opt{flex:1;min-width:0;padding:7px 4px;border-radius:7px;border:1px solid var(--border2);background:var(--card2);cursor:pointer;text-align:center;font-family:'DM Mono',monospace;font-size:8px;color:var(--muted2);-webkit-tap-highlight-color:transparent;transition:all 0.15s;white-space:nowrap;}
+.activity-opt.active{border-color:var(--green);color:var(--green);background:rgba(58,255,138,0.04);}
 
 .bw-row{display:flex;gap:7px;margin-bottom:9px;}
 .bw-wrap{flex:1;display:flex;align-items:center;background:var(--card2);border:1px solid var(--border2);border-radius:9px;overflow:hidden;}

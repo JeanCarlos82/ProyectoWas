@@ -540,11 +540,69 @@ function setSex(s,save=true){
 }
 function updateIMC(){
   const h=parseFloat(document.getElementById('p-height').value),w=parseFloat(document.getElementById('p-weight').value),wrap=document.getElementById('imc-wrap');
-  if(!h||!w||h<50||w<20){wrap.innerHTML=`<div style="color:var(--muted2);font-size:10px;text-align:center;padding:10px 0;font-family:'DM Mono',monospace">Completa altura y peso arriba</div>`;return;}
-  const hm=h/100,imc=w/(hm*hm),cat=IMC_C.find(c=>imc<c.max)||IMC_C[IMC_C.length-1];
-  const pMin=(18.5*hm*hm).toFixed(1),pMax=(24.9*hm*hm).toFixed(1),pMid=((18.5+24.9)/2*hm*hm),diff=(w-pMid).toFixed(1),dStr=diff>0?`+${diff}kg sobre el ideal`:`${diff}kg bajo el ideal`;
+  const age=parseInt(document.getElementById('p-age').value)||25;
+  const sex=db.profile.sex||'H';
+  if(!h||!w||h<50||w<20){wrap.innerHTML=`<div style="color:var(--muted2);font-size:11px;text-align:center;padding:10px 0;font-family:'DM Mono',monospace">Completa altura, peso y edad arriba</div>`;return;}
+  const hm=h/100;
+
+  // ── IMC ──
+  const imc=w/(hm*hm);
+  const cat=IMC_C.find(c=>imc<c.max)||IMC_C[IMC_C.length-1];
   const bars=IMC_C.filter(c=>c.max<999).map((c,i,arr)=>{const prev=arr[i-1]?.max||0;return`<div class="imc-seg" style="background:${c.color};opacity:${imc>=prev&&imc<c.max?1:0.15}"></div>`;}).join('');
-  wrap.innerHTML=`<div class="imc-card"><div><div class="imc-num" style="color:${cat.color}">${imc.toFixed(1)}</div><div class="imc-cat" style="color:${cat.color}">${cat.label}</div></div><div class="imc-r"><div class="imc-rlbl">Peso ideal (OMS)</div><div class="imc-range">${pMin}–${pMax} kg</div><div class="imc-diff">${dStr}</div></div></div><div class="imc-bar">${bars}</div>`;
+
+  // ── Peso ideal (promedio 4 fórmulas) ──
+  const hInches=(h/2.54)-60; // inches over 5 feet
+  const devine=sex==='H'?50+2.3*hInches:45.5+2.3*hInches;
+  const robinson=sex==='H'?52+1.9*hInches:49+1.7*hInches;
+  const miller=sex==='H'?56.2+1.41*hInches:53.1+1.36*hInches;
+  const hamwi=sex==='H'?48+2.7*hInches:45.5+2.2*hInches;
+  const idealMin=Math.min(devine,robinson,miller,hamwi).toFixed(1);
+  const idealMax=Math.max(devine,robinson,miller,hamwi).toFixed(1);
+  const idealAvg=((devine+robinson+miller+hamwi)/4);
+  const diffIdeal=(w-idealAvg).toFixed(1);
+  const diffStr=diffIdeal>0?`+${diffIdeal}kg`:`${diffIdeal}kg`;
+
+  // ── TMB (Mifflin-St Jeor) ──
+  const tmb=sex==='H'?(10*w+6.25*h-5*age+5):(10*w+6.25*h-5*age-161);
+
+  // ── TDEE ──
+  const actMult=[1.2,1.375,1.55,1.725,1.9];
+  const actLabels=['Sedentario','Ligero','Moderado','Activo','Muy activo'];
+  const actLevel=db.profile.activityLevel||2;
+  const tdee=tmb*actMult[actLevel];
+
+  let html=`
+    <div class="health-grid">
+      <div class="health-card">
+        <div class="health-label">IMC</div>
+        <div class="health-value" style="color:${cat.color}">${imc.toFixed(1)}</div>
+        <div class="health-sub" style="color:${cat.color}">${cat.label}</div>
+      </div>
+      <div class="health-card">
+        <div class="health-label">PESO IDEAL</div>
+        <div class="health-value">${idealMin}–${idealMax}</div>
+        <div class="health-sub">${diffStr} del promedio</div>
+      </div>
+      <div class="health-card">
+        <div class="health-label">TMB</div>
+        <div class="health-value" style="color:var(--blue)">${Math.round(tmb)}</div>
+        <div class="health-sub">kcal/día en reposo</div>
+      </div>
+      <div class="health-card">
+        <div class="health-label">TDEE</div>
+        <div class="health-value" style="color:var(--green)">${Math.round(tdee)}</div>
+        <div class="health-sub">kcal/día total</div>
+      </div>
+    </div>
+    <div class="imc-bar">${bars}</div>
+    <div class="health-activity">
+      <div class="health-label" style="margin-bottom:6px">NIVEL DE ACTIVIDAD</div>
+      <div class="activity-opts">${actLabels.map((l,i)=>`<div class="activity-opt ${actLevel===i?'active':''}" onclick="setActivity(${i})">${l}</div>`).join('')}</div>
+    </div>`;
+  wrap.innerHTML=html;
+}
+function setActivity(level){
+  db.profile.activityLevel=level;ps('gym_profile',db.profile);updateIMC();
 }
 
 // ── Rest Timer ──
