@@ -116,24 +116,34 @@
         </div>
       </div>
 
-      <div class="slbl">MI RUTINA</div>
-      <div id="routine-days"></div>
-
-      <div class="slbl">FEEDBACK</div>
-      <div class="psec">
-        <div style="text-align:center;padding:4px 0">
-          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);margin-bottom:8px">Ayúdanos a mejorar la app</div>
-          <button class="feedback-btn" onclick="openFeedback()">ENVIAR FEEDBACK</button>
+      <div class="psec drop-card">
+        <div class="drop-header" onclick="toggleDrop('rutina-section')">
+          <span class="drop-title">MI RUTINA</span>
+          <span class="drop-arrow" id="arrow-rutina-section">›</span>
+        </div>
+        <div class="drop-body" id="rutina-section">
+          <div id="routine-days"></div>
         </div>
       </div>
 
-      <div class="slbl">APP</div>
-      <div class="psec">
-        <div class="backup-row">
-          <div class="backup-btn exp" onclick="exportData()"><div class="backup-lbl">EXPORTAR</div><div class="backup-sub">Guardar JSON</div></div>
-          <label class="backup-btn imp" style="cursor:pointer"><div class="backup-lbl">IMPORTAR</div><div class="backup-sub">Restaurar JSON</div><input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+      <div class="psec drop-card">
+        <div class="drop-header" onclick="toggleDrop('app-section')">
+          <span class="drop-title">APP</span>
+          <span class="drop-arrow" id="arrow-app-section">›</span>
         </div>
-        <button class="install-btn" id="install-btn" onclick="installPWA()" style="display:none">INSTALAR APP</button>
+        <div class="drop-body" id="app-section">
+          <div style="text-align:center;padding:0 0 10px">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);margin-bottom:8px">Ayúdanos a mejorar la app</div>
+            <button class="feedback-btn" onclick="openFeedback()">ENVIAR FEEDBACK</button>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:10px">
+            <div class="backup-row">
+              <div class="backup-btn exp" onclick="exportData()"><div class="backup-lbl">EXPORTAR</div><div class="backup-sub">Guardar JSON</div></div>
+              <label class="backup-btn imp" style="cursor:pointer"><div class="backup-lbl">IMPORTAR</div><div class="backup-sub">Restaurar JSON</div><input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+            </div>
+            <button class="install-btn" id="install-btn" onclick="installPWA()" style="display:none">INSTALAR APP</button>
+          </div>
+        </div>
       </div>
     </div>
 
