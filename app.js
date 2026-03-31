@@ -1031,16 +1031,26 @@ function openModal(name,type){
     }
     let prevBlock='';
     if(prev?.sets?.length){
-      // Find date of prev session
-      const prevSess=db.sessions.find(s=>s.entries?.some(e=>e.exercise===name)&&s.date!==today());
-      const prevDate=prevSess?fmtD(prevSess.date):'';
-      // Calc averages from last 3 sessions
       const last3=getLastEntries(name,3);
-      const avgWeight=last3.length?Math.round(last3.reduce((a,e)=>a+(entryMaxWeight(e)||0),0)/last3.length*10)/10:0;
-      const avgVol=last3.length?Math.round(last3.reduce((a,e)=>a+entryVolume(e),0)/last3.length):0;
-      const rows=prev.sets.map((s,i)=>`<div class="prev-set-row"><span class="prev-set-num">${i+1}</span><span class="prev-set-val ${s.warmup?'prev-warm':''}">${s.w}${prev.unit||'kg'}</span><span class="prev-set-x">×</span><span class="prev-set-val">${s.r} reps</span>${s.warmup?'<span style="font-size:9px;color:var(--muted)"> C</span>':''}</div>`).join('');
-      const avgLine=last3.length>=2?`<div class="prev-avg">Promedio últimas ${last3.length}: <strong>${avgWeight}${prev.unit||'kg'}</strong> · ${avgVol}kg vol</div>`:'';
-      prevBlock=`<div class="prev-sets-block"><div class="prev-sets-label">TU REFERENCIA${prevDate?' · '+prevDate:''}</div>${rows}${avgLine}</div>`;
+      const unit=prev.unit||'kg';
+      if(last3.length>=2){
+        const avgWeight=Math.round(last3.reduce((a,e)=>a+(entryMaxWeight(e)||0),0)/last3.length*10)/10;
+        const avgReps=Math.round(last3.reduce((a,e)=>{const ws=e.sets?.filter(s=>!s.warmup)||[];return a+(ws.length?Math.max(...ws.map(s=>parseInt(s.r)||0)):0);},0)/last3.length);
+        const avgVol=Math.round(last3.reduce((a,e)=>a+entryVolume(e),0)/last3.length);
+        const avgSets=Math.round(last3.reduce((a,e)=>a+(e.sets?.filter(s=>!s.warmup).length||0),0)/last3.length);
+        prevBlock=`<div class="prev-avg-card">
+          <div class="prev-avg-title">TU PROMEDIO <span class="prev-avg-sub">últimas ${last3.length} sesiones</span></div>
+          <div class="prev-avg-grid">
+            <div class="prev-avg-item"><span class="prev-avg-val">${avgWeight}</span><span class="prev-avg-lbl">${unit} máx</span></div>
+            <div class="prev-avg-item"><span class="prev-avg-val">${avgReps}</span><span class="prev-avg-lbl">reps máx</span></div>
+            <div class="prev-avg-item"><span class="prev-avg-val">${avgSets}</span><span class="prev-avg-lbl">series</span></div>
+            <div class="prev-avg-item"><span class="prev-avg-val">${avgVol>=1000?(avgVol/1000).toFixed(1)+'k':avgVol}</span><span class="prev-avg-lbl">kg vol</span></div>
+          </div>
+        </div>`;
+      } else {
+        const mx=entryMaxWeight(prev);
+        prevBlock=`<div class="prev-avg-card"><div class="prev-avg-title">SESIÓN ANTERIOR</div><div class="prev-avg-grid"><div class="prev-avg-item"><span class="prev-avg-val">${mx}</span><span class="prev-avg-lbl">${unit} máx</span></div><div class="prev-avg-item"><span class="prev-avg-val">${prev.sets.filter(s=>!s.warmup).length}</span><span class="prev-avg-lbl">series</span></div></div></div>`;
+      }
     }
     document.getElementById('prev-sets-block').innerHTML=prevBlock;
     if(entry?.sets?.length){currentSets=entry.sets.map(s=>({w:s.w,r:s.r,warmup:!!s.warmup}));if(entry.unit)setUnit(entry.unit);}

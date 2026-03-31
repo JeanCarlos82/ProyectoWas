@@ -168,14 +168,13 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .ubtn{font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:5px;cursor:pointer;color:var(--muted2);background:transparent;border:1px solid var(--border2);transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
 .ubtn.active{background:var(--accent);color:#000;border-color:var(--accent);}
 
-.prev-sets-block{background:var(--card2);border-radius:8px;padding:8px 12px;margin-bottom:10px;}
-.prev-sets-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--muted2);text-transform:uppercase;margin-bottom:6px;}
-.prev-set-row{display:flex;align-items:center;gap:6px;padding:3px 0;}
-.prev-set-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);width:16px;}
-.prev-set-val{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--muted2);}
-.prev-avg{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);line-height:1.5;}
-.prev-avg strong{color:var(--accent);font-weight:600;}
-.prev-set-x{font-size:11px;color:var(--muted);margin:0 1px;}
+.prev-avg-card{background:linear-gradient(135deg,var(--card2) 0%,rgba(32,32,32,0.6) 100%);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:14px;}
+.prev-avg-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--muted2);text-transform:uppercase;margin-bottom:10px;}
+.prev-avg-sub{color:var(--accent);opacity:0.7;font-size:9px;margin-left:4px;}
+.prev-avg-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.prev-avg-item{background:var(--card);border-radius:10px;padding:10px 8px;text-align:center;}
+.prev-avg-val{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--text);display:block;line-height:1;}
+.prev-avg-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);text-transform:uppercase;margin-top:3px;display:block;letter-spacing:0.5px;}
 
 /* Set rows: 2-line layout for better mobile fit */
 .set-row{display:flex;align-items:center;gap:var(--gutter);padding:8px 0;border-bottom:1px solid var(--border);}
