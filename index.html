@@ -85,30 +85,6 @@
     <!-- PERFIL -->
     <div class="view" id="view-perfil">
 
-      <div class="slbl">MI RUTINA</div>
-      <div id="routine-days"></div>
-
-      <div class="slbl">ENTRENAMIENTO</div>
-      <div class="psec">
-        <div class="pfield">
-          <div class="plbl">OBJETIVO</div>
-          <div class="obj-select" style="margin-top:4px">
-            <div class="obj-opt" id="obj-fuerza" onclick="setObj('fuerza')"><div class="obj-opt-l">FUERZA</div><div class="obj-opt-s">1–5 reps</div></div>
-            <div class="obj-opt" id="obj-hipertrofia" onclick="setObj('hipertrofia')"><div class="obj-opt-l">HIPER</div><div class="obj-opt-s">6–12 reps</div></div>
-            <div class="obj-opt" id="obj-resistencia" onclick="setObj('resistencia')"><div class="obj-opt-l">RESIST</div><div class="obj-opt-s">13–20 reps</div></div>
-          </div>
-        </div>
-        <div class="pfield" style="margin-bottom:0">
-          <div class="plbl">DESCANSO ENTRE SERIES</div>
-          <div class="timer-opts" style="margin-top:4px">
-            <div class="timer-opt" data-sec="60" onclick="setRestTime(60)">1:00</div>
-            <div class="timer-opt" data-sec="90" onclick="setRestTime(90)">1:30</div>
-            <div class="timer-opt" data-sec="120" onclick="setRestTime(120)">2:00</div>
-            <div class="timer-opt" data-sec="180" onclick="setRestTime(180)">3:00</div>
-          </div>
-        </div>
-      </div>
-
       <div class="slbl">DATOS PERSONALES</div>
       <div class="psec">
         <div class="pfield"><div class="plbl">NOMBRE</div><input class="pinput" type="text" id="p-name" placeholder="Tu nombre" oninput="saveProfile()"></div>
@@ -116,27 +92,44 @@
           <div class="pfield"><div class="plbl">EDAD</div><input class="pinput pnum" type="number" id="p-age" placeholder="25" min="10" max="99" oninput="saveProfile()"></div>
           <div class="pfield"><div class="plbl">SEXO</div><div class="sex-row"><div class="sex-btn active" id="sex-h" onclick="setSex('H')">HOMBRE</div><div class="sex-btn" id="sex-m" onclick="setSex('M')">MUJER</div></div></div>
         </div>
-        <div class="p2" style="margin-bottom:0">
-          <div class="pfield" style="margin-bottom:0"><div class="plbl">ALTURA (cm)</div><input class="pinput pnum" type="number" id="p-height" placeholder="175" min="100" max="230" oninput="saveProfile();updateIMC()"></div>
-          <div class="pfield" style="margin-bottom:0"><div class="plbl">PESO (kg)</div><input class="pinput pnum" type="number" id="p-weight" placeholder="75" min="30" max="300" step="0.1" oninput="saveProfile();updateIMC()"></div>
+        <div class="p2">
+          <div class="pfield"><div class="plbl">ALTURA (cm)</div><input class="pinput pnum" type="number" id="p-height" placeholder="175" min="100" max="230" oninput="saveProfile();updateIMC()"></div>
+          <div class="pfield"><div class="plbl">PESO (kg)</div><input class="pinput pnum" type="number" id="p-weight" placeholder="75" min="30" max="300" step="0.1" oninput="saveProfile();updateIMC()"></div>
+        </div>
+
+        <!-- IMC desplegable -->
+        <div class="drop-section">
+          <div class="drop-header" onclick="toggleDrop('imc-section')">
+            <span class="drop-title">IMC / PESO IDEAL</span>
+            <span class="drop-arrow" id="arrow-imc-section">›</span>
+          </div>
+          <div class="drop-body" id="imc-section">
+            <div id="imc-wrap"><div style="color:var(--muted2);font-size:10px;text-align:center;padding:10px 0;font-family:'DM Mono',monospace">Completa altura y peso arriba</div></div>
+          </div>
+        </div>
+
+        <!-- Peso corporal desplegable -->
+        <div class="drop-section" style="margin-bottom:0">
+          <div class="drop-header" onclick="toggleDrop('bw-section')">
+            <span class="drop-title">REGISTRO DE PESO</span>
+            <span class="drop-arrow" id="arrow-bw-section">›</span>
+          </div>
+          <div class="drop-body" id="bw-section">
+            <div class="bw-row">
+              <div class="bw-wrap"><input class="bwinput" type="number" id="bw-val" placeholder="75.5" step="0.1" min="30" max="300"><span class="bwunit">kg</span></div>
+              <button class="bw-addbtn" onclick="logBW()">+</button>
+            </div>
+            <div class="bw-chart-box">
+              <div class="bw-chart-empty" id="bw-empty">Sin registros aún</div>
+              <canvas id="bw-chart" style="display:none;height:100px"></canvas>
+            </div>
+            <div class="bw-hist" id="bw-hist"></div>
+          </div>
         </div>
       </div>
 
-      <div class="slbl imc-toggle" onclick="document.getElementById('imc-section').classList.toggle('open')">IMC / PESO IDEAL <span class="imc-arrow">›</span></div>
-      <div class="psec imc-collapsible" id="imc-section"><div id="imc-wrap"><div style="color:var(--muted2);font-size:10px;text-align:center;padding:10px 0;font-family:'DM Mono',monospace">Completa altura y peso arriba</div></div></div>
-
-      <div class="slbl">PESO CORPORAL</div>
-      <div class="psec">
-        <div class="bw-row">
-          <div class="bw-wrap"><input class="bwinput" type="number" id="bw-val" placeholder="75.5" step="0.1" min="30" max="300"><span class="bwunit">kg</span></div>
-          <button class="bw-addbtn" onclick="logBW()">+</button>
-        </div>
-        <div class="bw-chart-box">
-          <div class="bw-chart-empty" id="bw-empty">Sin registros aún</div>
-          <canvas id="bw-chart" style="display:none;height:100px"></canvas>
-        </div>
-        <div class="bw-hist" id="bw-hist"></div>
-      </div>
+      <div class="slbl">MI RUTINA</div>
+      <div id="routine-days"></div>
 
       <div class="slbl">FEEDBACK</div>
       <div class="psec">

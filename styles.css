@@ -325,12 +325,13 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
 .day-count{font-family:'DM Mono',monospace;font-size:9px;background:var(--accent);color:#000;padding:2px 7px;border-radius:10px;font-weight:600;}
 .exrow-mg{font-family:'DM Mono',monospace;font-size:7px;color:var(--muted2);padding:2px 5px;background:var(--card2);border-radius:3px;}
 
-/* ── IMC COLLAPSIBLE ── */
-.imc-toggle{cursor:pointer;-webkit-tap-highlight-color:transparent;}
-.imc-arrow{transition:transform 0.2s;display:inline-block;font-size:12px;}
-.imc-collapsible{display:none;}
-.imc-collapsible.open{display:block;}
-.imc-collapsible.open+.imc-toggle .imc-arrow,.imc-toggle:has(+.imc-collapsible.open) .imc-arrow{transform:rotate(90deg);}
+/* ── DROP SECTIONS (desplegables dentro de psec) ── */
+.drop-section{border-top:1px solid var(--border);margin-top:12px;padding-top:4px;}
+.drop-header{display:flex;align-items:center;justify-content:space-between;padding:10px 0;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.drop-title{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.5px;color:var(--muted2);text-transform:uppercase;}
+.drop-arrow{color:var(--muted2);font-size:14px;transition:transform 0.2s;}
+.drop-body{display:none;padding-bottom:4px;}
+.drop-body.open{display:block;}
 
 /* ── FEEDBACK ── */
 .feedback-btn{width:100%;padding:11px;background:transparent;border:1px solid rgba(58,180,255,0.3);color:var(--blue);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;border-radius:9px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all 0.15s;}

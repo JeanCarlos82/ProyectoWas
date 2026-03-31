@@ -563,6 +563,13 @@ function doneExPicker(){
   pickerDay=null;
 }
 
+// ── Dropdowns ──
+function toggleDrop(id){
+  const body=document.getElementById(id),arrow=document.getElementById('arrow-'+id);
+  body.classList.toggle('open');
+  if(arrow)arrow.style.transform=body.classList.contains('open')?'rotate(90deg)':'';
+}
+
 // ── Feedback ──
 const FEEDBACK_URL=''; // Set your Google Form URL here
 function openFeedback(){
