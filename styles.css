@@ -311,18 +311,30 @@ html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-fam
 .prog-search:focus{border-color:var(--accent);}
 .prog-search::placeholder{color:var(--muted);}
 
-/* ── EXERCISE DROPDOWN ── */
-.addex-wrap{position:relative;}
-.ex-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--border2);border-radius:8px;max-height:200px;overflow-y:auto;z-index:50;scrollbar-width:none;margin-top:4px;}
-.ex-dropdown:empty{display:none;}
-.ex-dropdown::-webkit-scrollbar{display:none;}
-.exdd-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent;border-bottom:1px solid var(--border);}
-.exdd-item:last-child{border-bottom:none;}
-.exdd-item:active{background:var(--card2);}
-.exdd-name{font-size:12px;color:var(--text);}
-.exdd-mg{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted2);padding:2px 6px;background:var(--card2);border-radius:4px;}
-.exdd-create{color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;}
+/* ── EXERCISE PICKER ── */
+.picker-open-btn{width:100%;padding:10px;background:transparent;border:1px dashed var(--border2);border-radius:7px;color:var(--muted2);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;cursor:pointer;margin-top:8px;-webkit-tap-highlight-color:transparent;transition:all 0.15s;}
+.picker-open-btn:active{border-color:var(--accent);color:var(--accent);}
+.pk-zone{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;color:var(--accent);padding:12px 0 4px;border-bottom:1px solid var(--border);}
+.pk-muscle{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--muted2);text-transform:uppercase;padding:8px 0 4px;}
+.pk-item{display:flex;align-items:center;gap:10px;padding:9px 4px;cursor:pointer;-webkit-tap-highlight-color:transparent;border-bottom:1px solid var(--border);transition:background 0.1s;}
+.pk-item:active{background:var(--card2);}
+.pk-check{width:20px;height:20px;border-radius:5px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent;flex-shrink:0;transition:all 0.15s;}
+.pk-checked .pk-check{background:var(--accent);border-color:var(--accent);color:#000;}
+.pk-name{font-size:13px;color:var(--text);flex:1;}
+.pk-mg{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted2);padding:2px 6px;background:var(--card2);border-radius:4px;}
+.day-count{font-family:'DM Mono',monospace;font-size:9px;background:var(--accent);color:#000;padding:2px 7px;border-radius:10px;font-weight:600;}
 .exrow-mg{font-family:'DM Mono',monospace;font-size:7px;color:var(--muted2);padding:2px 5px;background:var(--card2);border-radius:3px;}
+
+/* ── IMC COLLAPSIBLE ── */
+.imc-toggle{cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.imc-arrow{transition:transform 0.2s;display:inline-block;font-size:12px;}
+.imc-collapsible{display:none;}
+.imc-collapsible.open{display:block;}
+.imc-collapsible.open+.imc-toggle .imc-arrow,.imc-toggle:has(+.imc-collapsible.open) .imc-arrow{transform:rotate(90deg);}
+
+/* ── FEEDBACK ── */
+.feedback-btn{width:100%;padding:11px;background:transparent;border:1px solid rgba(58,180,255,0.3);color:var(--blue);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;border-radius:9px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all 0.15s;}
+.feedback-btn:active{background:rgba(58,180,255,0.06);}
 
 /* ── HEADER TIMER (duration) ── */
 .hdr-timer{display:flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:9px;color:var(--blue);background:rgba(58,180,255,0.06);padding:3px 8px;border-radius:5px;border:1px solid rgba(58,180,255,0.12);}

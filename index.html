@@ -85,26 +85,27 @@
     <!-- PERFIL -->
     <div class="view" id="view-perfil">
 
-      <div class="slbl">OBJETIVO DE ENTRENAMIENTO</div>
+      <div class="slbl">MI RUTINA</div>
+      <div id="routine-days"></div>
+
+      <div class="slbl">ENTRENAMIENTO</div>
       <div class="psec">
-        <div class="pfield" style="margin-bottom:0">
-          <div class="plbl">¿Para qué entrenas?</div>
-          <div class="obj-select" style="margin-top:6px">
+        <div class="pfield">
+          <div class="plbl">OBJETIVO</div>
+          <div class="obj-select" style="margin-top:4px">
             <div class="obj-opt" id="obj-fuerza" onclick="setObj('fuerza')"><div class="obj-opt-l">FUERZA</div><div class="obj-opt-s">1–5 reps</div></div>
             <div class="obj-opt" id="obj-hipertrofia" onclick="setObj('hipertrofia')"><div class="obj-opt-l">HIPER</div><div class="obj-opt-s">6–12 reps</div></div>
             <div class="obj-opt" id="obj-resistencia" onclick="setObj('resistencia')"><div class="obj-opt-l">RESIST</div><div class="obj-opt-s">13–20 reps</div></div>
           </div>
         </div>
-      </div>
-
-      <div class="slbl">TEMPORIZADOR DE DESCANSO</div>
-      <div class="psec">
-        <div class="plbl">Tiempo entre series</div>
-        <div class="timer-opts" style="margin-top:6px">
-          <div class="timer-opt" data-sec="60" onclick="setRestTime(60)">1:00</div>
-          <div class="timer-opt" data-sec="90" onclick="setRestTime(90)">1:30</div>
-          <div class="timer-opt" data-sec="120" onclick="setRestTime(120)">2:00</div>
-          <div class="timer-opt" data-sec="180" onclick="setRestTime(180)">3:00</div>
+        <div class="pfield" style="margin-bottom:0">
+          <div class="plbl">DESCANSO ENTRE SERIES</div>
+          <div class="timer-opts" style="margin-top:4px">
+            <div class="timer-opt" data-sec="60" onclick="setRestTime(60)">1:00</div>
+            <div class="timer-opt" data-sec="90" onclick="setRestTime(90)">1:30</div>
+            <div class="timer-opt" data-sec="120" onclick="setRestTime(120)">2:00</div>
+            <div class="timer-opt" data-sec="180" onclick="setRestTime(180)">3:00</div>
+          </div>
         </div>
       </div>
 
@@ -121,10 +122,10 @@
         </div>
       </div>
 
-      <div class="slbl">IMC / PESO IDEAL</div>
-      <div class="psec"><div id="imc-wrap"><div style="color:var(--muted2);font-size:10px;text-align:center;padding:10px 0;font-family:'DM Mono',monospace">Completa altura y peso arriba</div></div></div>
+      <div class="slbl imc-toggle" onclick="document.getElementById('imc-section').classList.toggle('open')">IMC / PESO IDEAL <span class="imc-arrow">›</span></div>
+      <div class="psec imc-collapsible" id="imc-section"><div id="imc-wrap"><div style="color:var(--muted2);font-size:10px;text-align:center;padding:10px 0;font-family:'DM Mono',monospace">Completa altura y peso arriba</div></div></div>
 
-      <div class="slbl">EVOLUCIÓN DE PESO CORPORAL</div>
+      <div class="slbl">PESO CORPORAL</div>
       <div class="psec">
         <div class="bw-row">
           <div class="bw-wrap"><input class="bwinput" type="number" id="bw-val" placeholder="75.5" step="0.1" min="30" max="300"><span class="bwunit">kg</span></div>
@@ -137,6 +138,14 @@
         <div class="bw-hist" id="bw-hist"></div>
       </div>
 
+      <div class="slbl">FEEDBACK</div>
+      <div class="psec">
+        <div style="text-align:center;padding:4px 0">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);margin-bottom:8px">Ayúdanos a mejorar la app</div>
+          <button class="feedback-btn" onclick="openFeedback()">ENVIAR FEEDBACK</button>
+        </div>
+      </div>
+
       <div class="slbl">APP</div>
       <div class="psec">
         <div class="backup-row">
@@ -145,9 +154,6 @@
         </div>
         <button class="install-btn" id="install-btn" onclick="installPWA()" style="display:none">INSTALAR APP</button>
       </div>
-
-      <div class="slbl">RUTINA</div>
-      <div id="routine-days"></div>
     </div>
 
   </div>
@@ -170,6 +176,18 @@
       <span class="nlbl">PERFIL</span>
     </div>
   </nav>
+</div>
+
+<!-- EXERCISE PICKER -->
+<div class="overlay" id="picker-overlay" onclick="closeExPicker(event)">
+  <div class="modal" style="max-height:85dvh">
+    <div class="mhandle"></div>
+    <div class="mtitle">AGREGAR EJERCICIOS</div>
+    <div class="msub">Toca para seleccionar o quitar</div>
+    <input class="prog-search" type="text" id="picker-search" placeholder="Buscar ejercicio..." oninput="onPickerSearch(this.value)" style="margin-top:0">
+    <div id="picker-list" style="max-height:50dvh;overflow-y:auto;margin:8px 0 12px;scrollbar-width:none"></div>
+    <button class="sbtn" onclick="doneExPicker()">LISTO</button>
+  </div>
 </div>
 
 <!-- REST TIMER BAR -->

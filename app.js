@@ -446,28 +446,128 @@ function renderBWChart(){
   bwCh=new Chart(canvas.getContext('2d'),{type:'line',data:{labels:bws.map(b=>fmtD(b.date)),datasets:[{data:bws.map(b=>b.v),borderColor:'#3ab4ff',backgroundColor:ctx=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,100);g.addColorStop(0,'rgba(58,180,255,0.18)');g.addColorStop(1,'rgba(58,180,255,0)');return g;},borderWidth:2,pointBackgroundColor:'#3ab4ff',pointRadius:3,fill:true,tension:0.35}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1a1a',bodyColor:'#f2f2f2',callbacks:{label:ctx=>`${ctx.raw} kg`}}},scales:{x:{ticks:{color:'#3a3a3a',font:{size:8}},grid:{color:'rgba(255,255,255,0.03)'},border:{color:'#202020'}},y:{ticks:{color:'#3a3a3a',font:{size:8}},grid:{color:'rgba(255,255,255,0.03)'},border:{color:'#202020'}}}}});
 }
 
+let pickerDay=null; // which day the exercise picker is open for
+
 function renderRutina(){
   document.getElementById('routine-days').innerHTML=DK.map(dk=>{
     const day=db.routine[dk]||{label:'',rest:false,exercises:[]};
-    return`<div class="day-block" id="db-${dk}"><div class="day-hdr" onclick="toggleDay('${dk}')"><div><div class="day-name">${DL[dk].toUpperCase()}</div><div class="day-sub">${day.rest?'Descanso':day.label}</div></div><div class="day-tog" id="dtog-${dk}">›</div></div><div class="day-body" id="dbody-${dk}"><div class="tog-row"><div class="tog ${day.rest?'on':''}" id="rtog-${dk}" onclick="toggleRest('${dk}')"><div class="tog-knob"></div></div><span class="tog-lbl">Día de descanso</span></div><div id="dexsec-${dk}" style="${day.rest?'display:none':''}"><input class="dlbl-input" type="text" id="dlbl-${dk}" value="${day.label}" placeholder="Ej: Pecho + Tríceps" onchange="updateLabel('${dk}',this.value)"><div id="dexlist-${dk}">${(day.exercises||[]).map((ex,i)=>`<div class="exrow"><span class="exrow-name">${ex.name}</span><span class="exrow-type">${ex.type}</span><span class="exrow-mg">${getExerciseMuscleGroup(ex.name)}</span><button class="exrow-del" onclick="removeEx('${dk}',${i})">×</button></div>`).join('')}</div><div class="addex-wrap"><div class="addex-row"><input class="addex-input" type="text" id="newex-${dk}" placeholder="Buscar ejercicio..." oninput="showExDropdown('${dk}')" onfocus="showExDropdown('${dk}')"><button class="addex-btn" onclick="addEx('${dk}')">+</button></div><div class="ex-dropdown" id="exdd-${dk}"></div></div></div></div></div>`;
+    const exCount=day.exercises?.length||0;
+    return`<div class="day-block" id="db-${dk}">
+      <div class="day-hdr" onclick="toggleDay('${dk}')">
+        <div>
+          <div class="day-name">${DL[dk].toUpperCase()}</div>
+          <div class="day-sub">${day.rest?'Descanso':day.label||'Sin etiqueta'}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${!day.rest&&exCount?`<span class="day-count">${exCount}</span>`:''}
+          <div class="day-tog" id="dtog-${dk}">›</div>
+        </div>
+      </div>
+      <div class="day-body" id="dbody-${dk}">
+        <div class="tog-row">
+          <div class="tog ${day.rest?'on':''}" id="rtog-${dk}" onclick="toggleRest('${dk}')"><div class="tog-knob"></div></div>
+          <span class="tog-lbl">Día de descanso</span>
+        </div>
+        <div id="dexsec-${dk}" style="${day.rest?'display:none':''}">
+          <input class="dlbl-input" type="text" id="dlbl-${dk}" value="${day.label}" placeholder="Ej: Pecho + Tríceps" onchange="updateLabel('${dk}',this.value)">
+          <div id="dexlist-${dk}">
+            ${(day.exercises||[]).map((ex,i)=>`<div class="exrow">
+              <span class="exrow-name">${ex.name}</span>
+              <span class="exrow-mg">${getExerciseMuscleGroup(ex.name)}</span>
+              <button class="exrow-del" onclick="removeEx('${dk}',${i})">×</button>
+            </div>`).join('')}
+          </div>
+          <button class="picker-open-btn" onclick="openExPicker('${dk}')">+ AGREGAR EJERCICIOS</button>
+        </div>
+      </div>
+    </div>`;
   }).join('');
-  // Close dropdowns on outside click
-  document.addEventListener('click',e=>{if(!e.target.closest('.addex-wrap'))document.querySelectorAll('.ex-dropdown').forEach(d=>d.innerHTML='');},{once:false});
 }
-function showExDropdown(dk){
-  const inp=document.getElementById('newex-'+dk),dd=document.getElementById('exdd-'+dk),q=inp.value;
-  const results=searchExercises(q).slice(0,12);
-  if(!results.length&&q.trim()){dd.innerHTML=`<div class="exdd-item exdd-create" onclick="selectExFromDD('${dk}','${q.trim().replace(/'/g,"\\'")}','pesas')">+ Crear "${q.trim()}"</div>`;return;}
-  if(!q.trim()){dd.innerHTML='';return;}
-  dd.innerHTML=results.map(ex=>`<div class="exdd-item" onclick="selectExFromDD('${dk}','${ex.name.replace(/'/g,"\\'")}','${ex.type}')"><span class="exdd-name">${ex.name}</span><span class="exdd-mg">${ex.muscleGroup}</span></div>`).join('');
+
+// ── Exercise Picker (modal-style) ──
+function openExPicker(dk){
+  pickerDay=dk;
+  const existing=new Set((db.routine[dk].exercises||[]).map(e=>e.name));
+  const overlay=document.getElementById('picker-overlay');
+  overlay.classList.add('open');
+  document.getElementById('picker-search').value='';
+  renderPickerContent('',existing);
 }
-function selectExFromDD(dk,name,type){
-  document.getElementById('newex-'+dk).value=name;
-  document.getElementById('exdd-'+dk).innerHTML='';
-  db.routine[dk].exercises.push({name,type});
+function closeExPicker(e){
+  if(e&&e.target!==document.getElementById('picker-overlay'))return;
+  document.getElementById('picker-overlay').classList.remove('open');
+}
+function renderPickerContent(query,existing){
+  const container=document.getElementById('picker-list');
+  let exercises=query.trim()?searchExercises(query):EXERCISE_DB;
+  // Group by zone then muscle
+  let html='';
+  const zones=query.trim()?null:Object.keys(ZONES);
+  if(zones){
+    zones.forEach(z=>{
+      const zoneExes=exercises.filter(e=>e.zone===z);
+      if(!zoneExes.length)return;
+      html+=`<div class="pk-zone">${ZONES[z]}</div>`;
+      const muscles=[...new Set(zoneExes.flatMap(e=>e.muscleGroup))];
+      muscles.forEach(m=>{
+        const mExes=zoneExes.filter(e=>e.muscleGroup.includes(m));
+        // Deduplicate (compound exercises appear in multiple muscles)
+        const uniqueInGroup=mExes.filter((e,i,arr)=>arr.findIndex(x=>x.name===e.name)===i);
+        if(!uniqueInGroup.length)return;
+        html+=`<div class="pk-muscle">${m}</div>`;
+        uniqueInGroup.forEach(ex=>{
+          const checked=existing?.has(ex.name);
+          html+=`<div class="pk-item ${checked?'pk-checked':''}" onclick="togglePickerEx('${ex.name.replace(/'/g,"\\'")}','${ex.type}',this)">
+            <span class="pk-check">${checked?'✓':''}</span>
+            <span class="pk-name">${ex.name}</span>
+          </div>`;
+        });
+      });
+    });
+  } else {
+    exercises.forEach(ex=>{
+      const checked=existing?.has(ex.name);
+      html+=`<div class="pk-item ${checked?'pk-checked':''}" onclick="togglePickerEx('${ex.name.replace(/'/g,"\\'")}','${ex.type}',this)">
+        <span class="pk-check">${checked?'✓':''}</span>
+        <span class="pk-name">${ex.name}</span>
+        <span class="pk-mg">${ex.muscleGroup[0]}</span>
+      </div>`;
+    });
+  }
+  if(!html)html='<div style="padding:20px;text-align:center;color:var(--muted2);font-family:\'DM Mono\',monospace;font-size:10px">Sin resultados</div>';
+  container.innerHTML=html;
+}
+function onPickerSearch(q){
+  const existing=new Set((db.routine[pickerDay]?.exercises||[]).map(e=>e.name));
+  renderPickerContent(q,existing);
+}
+function togglePickerEx(name,type,el){
+  if(!pickerDay)return;
+  const day=db.routine[pickerDay];
+  const idx=day.exercises.findIndex(e=>e.name===name);
+  if(idx>=0){
+    day.exercises.splice(idx,1);
+    el.classList.remove('pk-checked');
+    el.querySelector('.pk-check').textContent='';
+  } else {
+    day.exercises.push({name,type});
+    el.classList.add('pk-checked');
+    el.querySelector('.pk-check').textContent='✓';
+  }
   ps('gym_routine',db.routine);
+}
+function doneExPicker(){
+  document.getElementById('picker-overlay').classList.remove('open');
   renderRutina();renderHoy();
-  document.getElementById('dbody-'+dk)?.classList.add('open');
+  document.getElementById('dbody-'+pickerDay)?.classList.add('open');
+  pickerDay=null;
+}
+
+// ── Feedback ──
+const FEEDBACK_URL=''; // Set your Google Form URL here
+function openFeedback(){
+  if(FEEDBACK_URL){window.open(FEEDBACK_URL,'_blank');}
+  else{toast('Configura el link de feedback en app.js');}
 }
 function toggleDay(k){const b=document.getElementById('dbody-'+k),t=document.getElementById('dtog-'+k);b.classList.toggle('open');t.style.transform=b.classList.contains('open')?'rotate(90deg)':'';}
 function toggleRest(k){db.routine[k].rest=!db.routine[k].rest;ps('gym_routine',db.routine);document.getElementById('rtog-'+k).classList.toggle('on');document.getElementById('dexsec-'+k).style.display=db.routine[k].rest?'none':'';document.querySelector(`#db-${k} .day-sub`).textContent=db.routine[k].rest?'Descanso':db.routine[k].label;renderHeader();renderHoy();}
