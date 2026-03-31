@@ -1025,7 +1025,6 @@ function openModal(name,type){
   if(type!=='cardio'){
     if(prev){
       const prevMx=entryMaxWeight(prev);
-      hints+=`<div class="mhint b"><span class="mhint-l">Sesión anterior</span><span class="mhint-v b">${prevMx} ${prev.unit||'kg'}</span></div>`;
       const suggestion=smartSuggestion(name);
       if(suggestion)hints+=`<div class="mhint ${suggestion.color}"><span class="mhint-l">${suggestion.reason}</span><span class="mhint-v ${suggestion.color}">${suggestion.msg}</span></div>`;
     }
