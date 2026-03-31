@@ -81,16 +81,17 @@ function buildRoutineFromWizard(templateKey,selectedDays){
 }
 
 // ── Wizard State ──
+const WIZARD_STEPS=4;
 let wizardStep=1;
-let wizardData={goal:null,experience:null,selectedDays:[]};
+let wizardData={name:'',age:'',sex:'H',height:'',weight:'',goal:null,experience:null,selectedDays:[]};
 
 function showWizard(){
-  // Warn if user already has a routine with exercises
   const hasExisting=Object.values(db.routine).some(d=>d.exercises?.length>0);
   if(hasExisting&&localStorage.getItem('gym_onboarded')){
     if(!confirm('Esto reemplazará tu rutina actual. ¿Continuar?'))return;
   }
-  wizardStep=1;wizardData={goal:null,experience:null,selectedDays:[]};
+  wizardStep=1;
+  wizardData={name:db.profile.name||'',age:db.profile.age||'',sex:db.profile.sex||'H',height:db.profile.height||'',weight:db.profile.weight||'',goal:null,experience:null,selectedDays:[]};
   document.getElementById('wizard-overlay').style.display='flex';
   renderWizardStep();
 }
@@ -101,9 +102,25 @@ function hideWizard(){
 function renderWizardStep(){
   const container=document.getElementById('wizard-content');
   const dots=document.getElementById('wizard-dots');
-  dots.innerHTML=[1,2,3].map(n=>`<span class="wiz-dot ${n===wizardStep?'active':''}${n<wizardStep?' done':''}"></span>`).join('');
+  dots.innerHTML=Array.from({length:WIZARD_STEPS},(_,i)=>i+1).map(n=>`<span class="wiz-dot ${n===wizardStep?'active':''}${n<wizardStep?' done':''}"></span>`).join('');
 
   if(wizardStep===1){
+    container.innerHTML=`
+      <div class="wiz-title">Sobre ti</div>
+      <div class="wiz-subtitle">Nota: Si no sabes algún dato, déjalo vacío</div>
+      <div class="wiz-form">
+        <div class="wiz-field"><label class="wiz-label">NOMBRE</label><input class="wiz-input" type="text" id="wiz-name" value="${wizardData.name}" placeholder="Tu nombre"></div>
+        <div class="wiz-row">
+          <div class="wiz-field"><label class="wiz-label">EDAD</label><input class="wiz-input wiz-num" type="number" id="wiz-age" value="${wizardData.age}" placeholder="25" min="10" max="99"></div>
+          <div class="wiz-field"><label class="wiz-label">SEXO</label><div class="wiz-sex-row"><div class="wiz-sex ${wizardData.sex==='H'?'active':''}" onclick="wizardData.sex='H';renderWizardStep()">H</div><div class="wiz-sex ${wizardData.sex==='M'?'active':''}" onclick="wizardData.sex='M';renderWizardStep()">M</div></div></div>
+        </div>
+        <div class="wiz-row">
+          <div class="wiz-field"><label class="wiz-label">ALTURA (cm)</label><input class="wiz-input wiz-num" type="number" id="wiz-height" value="${wizardData.height}" placeholder="175" min="100" max="230"></div>
+          <div class="wiz-field"><label class="wiz-label">PESO (kg)</label><input class="wiz-input wiz-num" type="number" id="wiz-weight" value="${wizardData.weight}" placeholder="75" min="30" max="300" step="0.1"></div>
+        </div>
+      </div>
+      <button class="sbtn" onclick="wizNextProfile()" style="margin-top:16px">CONTINUAR</button>`;
+  } else if(wizardStep===2){
     container.innerHTML=`
       <div class="wiz-title">¿Cuál es tu objetivo?</div>
       <div class="wiz-subtitle">Esto define tus sets y repeticiones</div>
@@ -125,7 +142,7 @@ function renderWizardStep(){
           <div><span class="wiz-opt-title">Estar en forma</span><span class="wiz-opt-desc">General · 8-12 reps</span></div>
         </div>
       </div>`;
-  } else if(wizardStep===2){
+  } else if(wizardStep===3){
     container.innerHTML=`
       <div class="wiz-title">¿Cuánta experiencia tienes?</div>
       <div class="wiz-subtitle">Adaptamos la rutina a tu nivel</div>
@@ -143,7 +160,7 @@ function renderWizardStep(){
           <div><span class="wiz-opt-title">Más de 1 año</span><span class="wiz-opt-desc">Avanzado</span></div>
         </div>
       </div>`;
-  } else if(wizardStep===3){
+  } else if(wizardStep===4){
     const warning=wizardData.selectedDays.length?getDaysWarning(wizardData.experience,wizardData.selectedDays.length):null;
     const allDays=[
       {key:"lunes",label:"L"},{key:"martes",label:"M"},{key:"miercoles",label:"X"},
@@ -161,10 +178,19 @@ function renderWizardStep(){
   }
 }
 
+function wizNextProfile(){
+  // Read values from inputs
+  wizardData.name=document.getElementById('wiz-name').value.trim();
+  wizardData.age=document.getElementById('wiz-age').value;
+  wizardData.height=document.getElementById('wiz-height').value;
+  wizardData.weight=document.getElementById('wiz-weight').value;
+  wizardStep=2;renderWizardStep();
+}
+
 function wizSelect(key,value){
   wizardData[key]=value;
   renderWizardStep();
-  setTimeout(()=>{if(wizardStep<3){wizardStep++;renderWizardStep();}},300);
+  setTimeout(()=>{if(wizardStep<WIZARD_STEPS){wizardStep++;renderWizardStep();}},300);
 }
 
 function toggleWizDay(dk){
@@ -209,10 +235,22 @@ function applyWizardRoutine(customize){
   const templateKey=selectTemplate(numDays);
   const routine=buildRoutineFromWizard(templateKey,wizardData.selectedDays);
 
+  // Save routine
   db.routine=routine;
   ps('gym_routine',db.routine);
   db.objective=goalToObjective(wizardData.goal);
   ps('gym_objective',db.objective);
+
+  // Save profile (defaults for empty fields)
+  db.profile={
+    ...db.profile,
+    name:wizardData.name||'Usuario',
+    age:wizardData.age||'25',
+    sex:wizardData.sex||'H',
+    height:wizardData.height||'175',
+    weight:wizardData.weight||'75',
+  };
+  ps('gym_profile',db.profile);
   localStorage.setItem('gym_onboarded','true');
 
   hideWizard();
