@@ -151,6 +151,7 @@
               <label class="backup-btn imp" style="cursor:pointer"><div class="backup-lbl">IMPORTAR</div><div class="backup-sub">Restaurar JSON</div><input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
             </div>
             <button class="install-btn" id="install-btn" onclick="installPWA()" style="display:none">INSTALAR APP</button>
+          <button class="dbtn" onclick="if(confirm('Esto borrará todos tus datos y cargará datos de demo. ¿Continuar?'))loadDemo()" style="margin-top:7px;font-size:11px">CARGAR DATOS DEMO</button>
           </div>
         </div>
       </div>

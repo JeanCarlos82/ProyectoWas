@@ -813,8 +813,15 @@ if('serviceWorker' in navigator){
 }
 
 // ── DEMO DATA (remove after testing) ──
-(function injectDemoData(){
-  if(db.sessions.length>0)return;
+function loadDemo(){
+  // Clear all existing data
+  localStorage.clear();
+  injectDemoData();
+  db=loadDB();
+  renderHeader();renderObj();renderHoy();
+  toast('Demo cargada ✓');
+}
+function injectDemoData(){
   const d=n=>{const dd=new Date();dd.setDate(dd.getDate()-n);return dd.toISOString().split('T')[0];};
   const dk=n=>{const dd=new Date();dd.setDate(dd.getDate()-n);return DK[dd.getDay()];};
   const ts=n=>{const dd=new Date();dd.setDate(dd.getDate()-n);dd.setHours(17,0,0);return dd.toISOString();};
@@ -918,7 +925,9 @@ if('serviceWorker' in navigator){
     ]},
   ];
   ps('gym_sessions',db.sessions);
-})();
+}
+// Auto-inject if empty
+if(!db.sessions.length)injectDemoData();
 
 // ── Init ──
 renderHeader();renderObj();renderHoy();startDurationInterval();
