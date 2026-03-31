@@ -594,7 +594,15 @@ function toggleWarmup(i){currentSets[i].warmup=!currentSets[i].warmup;renderSets
 function renderSets(){
   const list=document.getElementById('sets-list');
   if(!currentSets.length){list.innerHTML='';updateVolSummary();return;}
-  list.innerHTML=currentSets.map((s,i)=>`<div class="set-row ${s.warmup?'set-warmup':''}"><span class="set-warm ${s.warmup?'on':''}" onclick="toggleWarmup(${i})">${s.warmup?'C':'T'}</span><div class="set-inputs"><input class="set-w" type="number" min="0" step="0.5" placeholder="kg" value="${s.w}" oninput="currentSets[${i}].w=this.value;updateVolSummary()"><span class="set-x-label">×</span><input class="set-r" type="number" min="0" step="1" placeholder="reps" value="${s.r}" oninput="currentSets[${i}].r=this.value;updateVolSummary()"><span class="set-unit" id="su-${i}">${curUnit}</span></div><button class="set-del" onclick="removeSet(${i})">×</button></div>`).join('');
+  list.innerHTML=currentSets.map((s,i)=>`<div class="set-row ${s.warmup?'set-warmup':''}">
+    <span class="set-warm ${s.warmup?'on':''}" onclick="toggleWarmup(${i})">${s.warmup?'C':'T'}</span>
+    <div class="set-inputs">
+      <div class="set-input-group"><span class="set-input-lbl" id="su-${i}">${curUnit}</span><input class="set-w" type="number" inputmode="decimal" min="0" step="0.5" placeholder="0" value="${s.w}" oninput="currentSets[${i}].w=this.value;updateVolSummary()"></div>
+      <span class="set-x-label">×</span>
+      <div class="set-input-group"><span class="set-input-lbl">REPS</span><input class="set-r" type="number" inputmode="numeric" min="0" step="1" placeholder="0" value="${s.r}" oninput="currentSets[${i}].r=this.value;updateVolSummary()"></div>
+    </div>
+    <div class="set-actions"><button class="set-del" onclick="removeSet(${i})">×</button></div>
+  </div>`).join('');
   updateVolSummary();
 }
 function updateVolSummary(){
