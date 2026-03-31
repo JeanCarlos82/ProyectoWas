@@ -210,7 +210,11 @@ function renderHist(){
 
 function buildMuscleGroups(){
   const g=new Map();
-  Object.values(db.routine).forEach(d=>{if(!d.rest&&d.exercises?.length)d.exercises.forEach(ex=>{if(!g.has(d.label))g.set(d.label,[]);g.get(d.label).push(ex);});});
+  Object.values(db.routine).forEach(d=>{if(!d.rest&&d.exercises?.length)d.exercises.forEach(ex=>{
+    const mg=typeof getExerciseMuscleGroup==='function'?getExerciseMuscleGroup(ex.name):d.label;
+    if(!g.has(mg))g.set(mg,[]);
+    if(!g.get(mg).find(e=>e.name===ex.name))g.get(mg).push(ex);
+  });});
   return g;
 }
 function renderProg(){
@@ -387,8 +391,25 @@ function renderBWChart(){
 function renderRutina(){
   document.getElementById('routine-days').innerHTML=DK.map(dk=>{
     const day=db.routine[dk]||{label:'',rest:false,exercises:[]};
-    return`<div class="day-block" id="db-${dk}"><div class="day-hdr" onclick="toggleDay('${dk}')"><div><div class="day-name">${DL[dk].toUpperCase()}</div><div class="day-sub">${day.rest?'Descanso':day.label}</div></div><div class="day-tog" id="dtog-${dk}">›</div></div><div class="day-body" id="dbody-${dk}"><div class="tog-row"><div class="tog ${day.rest?'on':''}" id="rtog-${dk}" onclick="toggleRest('${dk}')"><div class="tog-knob"></div></div><span class="tog-lbl">Día de descanso</span></div><div id="dexsec-${dk}" style="${day.rest?'display:none':''}"><input class="dlbl-input" type="text" id="dlbl-${dk}" value="${day.label}" placeholder="Ej: Pecho + Tríceps" onchange="updateLabel('${dk}',this.value)"><div id="dexlist-${dk}">${(day.exercises||[]).map((ex,i)=>`<div class="exrow"><span class="exrow-name">${ex.name}</span><span class="exrow-type">${ex.type}</span><button class="exrow-del" onclick="removeEx('${dk}',${i})">×</button></div>`).join('')}</div><div class="addex-row"><input class="addex-input" type="text" id="newex-${dk}" placeholder="Nuevo ejercicio..."><select class="addex-type" id="newtype-${dk}"><option value="pesas">pesas</option><option value="cardio">cardio</option></select><button class="addex-btn" onclick="addEx('${dk}')">+</button></div></div></div></div>`;
+    return`<div class="day-block" id="db-${dk}"><div class="day-hdr" onclick="toggleDay('${dk}')"><div><div class="day-name">${DL[dk].toUpperCase()}</div><div class="day-sub">${day.rest?'Descanso':day.label}</div></div><div class="day-tog" id="dtog-${dk}">›</div></div><div class="day-body" id="dbody-${dk}"><div class="tog-row"><div class="tog ${day.rest?'on':''}" id="rtog-${dk}" onclick="toggleRest('${dk}')"><div class="tog-knob"></div></div><span class="tog-lbl">Día de descanso</span></div><div id="dexsec-${dk}" style="${day.rest?'display:none':''}"><input class="dlbl-input" type="text" id="dlbl-${dk}" value="${day.label}" placeholder="Ej: Pecho + Tríceps" onchange="updateLabel('${dk}',this.value)"><div id="dexlist-${dk}">${(day.exercises||[]).map((ex,i)=>`<div class="exrow"><span class="exrow-name">${ex.name}</span><span class="exrow-type">${ex.type}</span><span class="exrow-mg">${getExerciseMuscleGroup(ex.name)}</span><button class="exrow-del" onclick="removeEx('${dk}',${i})">×</button></div>`).join('')}</div><div class="addex-wrap"><div class="addex-row"><input class="addex-input" type="text" id="newex-${dk}" placeholder="Buscar ejercicio..." oninput="showExDropdown('${dk}')" onfocus="showExDropdown('${dk}')"><button class="addex-btn" onclick="addEx('${dk}')">+</button></div><div class="ex-dropdown" id="exdd-${dk}"></div></div></div></div></div>`;
   }).join('');
+  // Close dropdowns on outside click
+  document.addEventListener('click',e=>{if(!e.target.closest('.addex-wrap'))document.querySelectorAll('.ex-dropdown').forEach(d=>d.innerHTML='');},{once:false});
+}
+function showExDropdown(dk){
+  const inp=document.getElementById('newex-'+dk),dd=document.getElementById('exdd-'+dk),q=inp.value;
+  const results=searchExercises(q).slice(0,12);
+  if(!results.length&&q.trim()){dd.innerHTML=`<div class="exdd-item exdd-create" onclick="selectExFromDD('${dk}','${q.trim().replace(/'/g,"\\'")}','pesas')">+ Crear "${q.trim()}"</div>`;return;}
+  if(!q.trim()){dd.innerHTML='';return;}
+  dd.innerHTML=results.map(ex=>`<div class="exdd-item" onclick="selectExFromDD('${dk}','${ex.name.replace(/'/g,"\\'")}','${ex.type}')"><span class="exdd-name">${ex.name}</span><span class="exdd-mg">${ex.muscleGroup}</span></div>`).join('');
+}
+function selectExFromDD(dk,name,type){
+  document.getElementById('newex-'+dk).value=name;
+  document.getElementById('exdd-'+dk).innerHTML='';
+  db.routine[dk].exercises.push({name,type});
+  ps('gym_routine',db.routine);
+  renderRutina();renderHoy();
+  document.getElementById('dbody-'+dk)?.classList.add('open');
 }
 function toggleDay(k){const b=document.getElementById('dbody-'+k),t=document.getElementById('dtog-'+k);b.classList.toggle('open');t.style.transform=b.classList.contains('open')?'rotate(90deg)':'';}
 function toggleRest(k){db.routine[k].rest=!db.routine[k].rest;ps('gym_routine',db.routine);document.getElementById('rtog-'+k).classList.toggle('on');document.getElementById('dexsec-'+k).style.display=db.routine[k].rest?'none':'';document.querySelector(`#db-${k} .day-sub`).textContent=db.routine[k].rest?'Descanso':db.routine[k].label;renderHeader();renderHoy();}

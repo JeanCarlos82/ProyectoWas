@@ -1,9 +1,10 @@
-const CACHE_NAME = 'gym-v1';
+const CACHE_NAME = 'gym-v2';
 const ASSETS = [
   '/',
   '/index.html',
   '/styles.css',
   '/app.js',
+  '/exercises-db.js',
   '/manifest.json',
   'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js'
