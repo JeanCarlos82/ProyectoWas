@@ -635,7 +635,7 @@ function openModal(name,type){
   if(type!=='cardio'){
     if(prev){const prevMx=entryMaxWeight(prev),sugg=(prevMx+2.5).toFixed(1);hints+=`<div class="mhint b"><span class="mhint-l">Sesión anterior</span><span class="mhint-v b">${prevMx} ${prev.unit||'kg'}</span></div><div class="mhint g"><span class="mhint-l">Sugerido hoy (+2.5)</span><span class="mhint-v g">${sugg} ${prev.unit||'kg'}</span></div>`;}
     let prevBlock='';
-    if(prev?.sets?.length){const rows=prev.sets.map((s,i)=>`<div class="prev-set-row"><span class="prev-set-num">${i+1}</span><span class="prev-set-val ${s.warmup?'prev-warm':''}">${s.w}${prev.unit||'kg'}</span><span class="prev-set-x">×</span><span class="prev-set-val">${s.r} reps</span>${s.warmup?'<span style="font-size:7px;color:var(--muted)"> C</span>':''}</div>`).join('');prevBlock=`<div class="prev-sets-block"><div class="prev-sets-label">REFERENCIA — SESIÓN ANTERIOR</div>${rows}</div>`;}
+    if(prev?.sets?.length){const rows=prev.sets.map((s,i)=>`<div class="prev-set-row"><span class="prev-set-num">${i+1}</span><span class="prev-set-val ${s.warmup?'prev-warm':''}">${s.w}${prev.unit||'kg'}</span><span class="prev-set-x">×</span><span class="prev-set-val">${s.r} reps</span>${s.warmup?'<span style="font-size:7px;color:var(--muted)"> C</span>':''}</div>`).join('');prevBlock=`<div class="prev-sets-block"><div class="prev-sets-label">ÚLTIMA SESIÓN</div>${rows}</div>`;}
     document.getElementById('prev-sets-block').innerHTML=prevBlock;
     if(entry?.sets?.length){currentSets=entry.sets.map(s=>({w:s.w,r:s.r,warmup:!!s.warmup}));if(entry.unit)setUnit(entry.unit);}
     else if(prev?.sets?.length){currentSets=prev.sets.map(s=>({w:s.w,r:s.r,warmup:!!s.warmup}));setUnit(prev.unit||'kg');}
