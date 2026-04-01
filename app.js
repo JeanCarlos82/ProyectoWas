@@ -3,6 +3,7 @@ const DL={domingo:"Domingo",lunes:"Lunes",martes:"Martes",miercoles:"Miércoles"
 const MO=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const OBJS={fuerza:{reps:"1–5 reps",series:"4–6 series"},hipertrofia:{reps:"6–12 reps",series:"3–4 series"},resistencia:{reps:"13–20 reps",series:"2–3 series"}};
 const IMC_C=[{max:18.5,label:"Bajo peso",color:"#3ab4ff"},{max:25,label:"Peso normal",color:"#3aff8a"},{max:30,label:"Sobrepeso",color:"#ffaa3a"},{max:35,label:"Obesidad I",color:"#ff4d4d"},{max:999,label:"Obesidad II+",color:"#ff4d4d"}];
+const _s='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">';
 const DR={lunes:{label:"",rest:true,exercises:[]},martes:{label:"",rest:true,exercises:[]},miercoles:{label:"",rest:true,exercises:[]},jueves:{label:"",rest:true,exercises:[]},viernes:{label:"",rest:true,exercises:[]},sabado:{label:"",rest:true,exercises:[]},domingo:{label:"",rest:true,exercises:[]}};
 
 function escapeHtml(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
@@ -1421,7 +1422,6 @@ function installPWA(){
 }
 
 // ── GYM GUIDE ──
-const _s='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">';
 const GI={
   // 1RM — dumbbell (single, clean)
   crown:_s+'<line x1="4" y1="12" x2="20" y2="12"/><rect x="2" y="9" width="4" height="6" rx="1.5"/><rect x="18" y="9" width="4" height="6" rx="1.5"/></svg>',
