@@ -528,15 +528,19 @@ function renderWizardStep(){
       <div class="wiz-is"><span class="wiz-is-n">3</span>Abre la app desde tu pantalla de inicio</div>
     </div>`;
     container.innerHTML=`
-      <div class="wiz-install-ico"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-      <div class="wiz-title">Antes de empezar</div>
-      <div class="wiz-subtitle">Para que tus datos se guarden correctamente, te recomendamos <b>instalar la app</b> en tu teléfono</div>
-      ${isIOS?iosSteps:androidSteps}
-      <div class="wiz-install-note">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        <p>Si haces el cuestionario en el navegador y luego instalas, <b>tendrás que repetirlo</b>. Instálala primero.</p>
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:16px;background:rgba(232,255,58,0.08);border:1px solid rgba(232,255,58,0.2);margin-bottom:16px">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#E8FF3A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <div class="wiz-title" style="margin-bottom:4px">Instala la app</div>
+        <div class="wiz-subtitle">Para que tus datos no se pierdan</div>
       </div>
-      <button class="sbtn" onclick="wizardStep=1;renderWizardStep()" style="margin-top:16px">YA LA INSTALÉ</button>
+      ${isIOS?iosSteps:androidSteps}
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-top:14px;padding:10px 12px;background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.15);border-radius:10px">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f87171" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <p style="font-family:'DM Mono',monospace;font-size:10px;color:#999;line-height:1.6;margin:0">Si completas el cuestionario en el navegador y luego instalas, <span style="color:#f87171">tendrás que repetirlo</span>.</p>
+      </div>
+      <button class="sbtn" onclick="wizardStep=1;renderWizardStep()" style="margin-top:20px">YA LA INSTALÉ</button>
       <button class="wiz-skip-btn" onclick="wizardStep=1;renderWizardStep()">Continuar sin instalar</button>`;
     return;
   }
