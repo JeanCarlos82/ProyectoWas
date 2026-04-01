@@ -493,7 +493,12 @@ function showWizard(){
   document.getElementById('wizard-overlay').style.display='flex';
   renderWizardStep();
 }
-function hideWizard(){document.getElementById('wizard-overlay').style.display='none';}
+function hideWizard(){
+  document.getElementById('wizard-overlay').style.display='none';
+  const app=document.getElementById('app');
+  if(app)app.style.display='';
+  startDurationInterval();
+}
 
 function renderWizardStep(){
   const container=document.getElementById('wizard-content');
@@ -902,7 +907,7 @@ function applyWizardRoutine(customize){
 }
 
 function checkOnboarding(){
-  if(!localStorage.getItem('gym_onboarded')&&!db.sessions.length){
+  if(!localStorage.getItem('gym_onboarded')){
     showWizard();
   }
 }

@@ -1630,5 +1630,7 @@ function injectDemoData(){
   ps('gym_sessions',db.sessions);
 }
 // ── Init ──
-renderHeader();renderObj();renderHoy();startDurationInterval();
+const _isNew=!localStorage.getItem('gym_onboarded');
+if(!_isNew){renderHeader();renderObj();renderHoy();startDurationInterval();}
+else{document.getElementById('app').style.display='none';}
 if(typeof checkOnboarding==='function')checkOnboarding();
