@@ -785,4 +785,8 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 /* ── RESPONSIVE: max width cap for tablets/desktop ── */
 @media(min-width:500px){
   #app{max-width:430px;margin:0 auto;border-left:1px solid var(--border);border-right:1px solid var(--border);}
+  .overlay .modal{max-width:430px;margin:0 auto;}
+  .wizard-overlay{justify-content:center;}
+  .wizard{max-width:430px;}
+  .fab-reorder{right:calc(50% - 215px + 16px);}
 }
