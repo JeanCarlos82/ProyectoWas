@@ -24,17 +24,16 @@
     </div>
     <div class="hdr-right">
       <div class="hdr-badge" id="hdr-badge">—</div>
-      <div class="hdr-timer" id="hdr-timer" style="display:none"><span class="hdr-timer-dot"></span>0:00</div>
-    </div>
-  </div>
-  <div class="streaks-bar">
-    <div class="streak-badge streak-fire" id="streak-constancia" style="display:none">
-      <span class="streak-emoji">🔥</span>
-      <div class="streak-info"><span class="streak-num" id="streak-c-n">0</span><span class="streak-lbl">Constancia</span></div>
-    </div>
-    <div class="streak-badge streak-bolt" id="streak-progreso" style="display:none">
-      <span class="streak-emoji">⚡</span>
-      <div class="streak-info"><span class="streak-num" id="streak-p-n">0</span><span class="streak-lbl">Progreso</span></div>
+      <div class="hdr-streaks">
+        <div class="hdr-streak fire" id="streak-constancia" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4.97 0 7-3.58 7-7.5 0-4.05-3.5-7.5-7-10.5-3.5 3-7 6.45-7 10.5C5 18.42 7.03 22 12 22z"/><path d="M12 22c2 0 3.5-1.5 3.5-4 0-2.5-1.75-4-3.5-5.5C10.25 14 8.5 15.5 8.5 18c0 2.5 1.5 4 3.5 4z"/></svg>
+          <span id="streak-c-n">0</span>
+        </div>
+        <div class="hdr-streak bolt" id="streak-progreso" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span id="streak-p-n">0</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -42,13 +41,14 @@
 
     <!-- HOY -->
     <div class="view active" id="view-hoy">
-      <div class="slbl">EJERCICIOS</div>
+      <div class="slbl slbl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><rect x="2" y="9" width="4" height="6" rx="1.5"/><rect x="18" y="9" width="4" height="6" rx="1.5"/></svg>EJERCICIOS</div>
       <div id="hoy-content"></div>
+      <button class="fab-reorder" id="reorder-toggle" onclick="toggleReorder()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="8 9 12 5 16 9"/><polyline points="8 15 12 19 16 15"/></svg><span>Orden</span></button>
     </div>
 
     <!-- HISTORIAL -->
     <div class="view" id="view-hist">
-      <div class="slbl">SESIONES</div>
+      <div class="slbl slbl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>SESIONES</div>
       <div class="sess-list" id="sess-list"></div>
     </div>
 
@@ -82,8 +82,8 @@
         </div>
         <div class="chart-box">
           <div class="chart-top">
-            <span class="chart-title">PESO MÁXIMO POR SESIÓN</span>
-            <span class="pr-badge" id="pr-badge" style="display:none">🏆 PR</span>
+            <span class="chart-title" id="chart-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;color:var(--accent);vertical-align:middle;margin-right:4px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><span id="chart-title-text">PESO MÁXIMO POR SESIÓN</span></span>
+            <span class="pr-badge" id="pr-badge" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:middle;margin-right:3px"><path d="M6 9H3a1 1 0 0 0-1 1v1a4 4 0 0 0 4 4h0"/><path d="M18 9h3a1 1 0 0 1 1 1v1a4 4 0 0 1-4 4h0"/><path d="M7 4h10v7a5 5 0 0 1-10 0V4z"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="16" x2="12" y2="20"/></svg>PR</span>
           </div>
           <div class="chart-empty" id="chart-empty" style="display:none"></div>
           <div class="chart-canvas-wrap" id="chart-cwrap"><canvas id="prog-chart"></canvas></div>
@@ -92,7 +92,7 @@
         <div id="prog-best-sets"></div>
         <div id="prog-recent-sets"></div>
         <div id="notes-sec" style="display:none">
-          <div class="slbl">NOTAS</div>
+          <div class="slbl slbl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>NOTAS</div>
           <div id="notes-list"></div>
         </div>
       </div>
@@ -106,7 +106,7 @@
 
       <!-- Peso corporal (most used - always visible) -->
       <div class="psec">
-        <div class="plbl">REGISTRAR PESO</div>
+        <div class="plbl plbl-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4"/><circle cx="12" cy="3" r="1"/><path d="M6.5 10L12 7l5.5 3"/><rect x="4" y="14" width="16" height="4" rx="2"/><line x1="8" y1="18" x2="8" y2="20"/><line x1="16" y1="18" x2="16" y2="20"/></svg>REGISTRAR PESO</div>
         <div class="bw-row">
           <div class="bw-wrap"><input class="bwinput" type="number" id="bw-val" placeholder="75.5" step="0.1" min="30" max="300"><span class="bwunit">kg</span></div>
           <button class="bw-addbtn" onclick="logBW()">+</button>
@@ -120,14 +120,14 @@
 
       <!-- Métricas de salud (visible, useful reference) -->
       <div class="psec">
-        <div class="plbl" style="margin-bottom:8px">MÉTRICAS DE SALUD</div>
+        <div class="plbl plbl-ico" style="margin-bottom:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>MÉTRICAS DE SALUD</div>
         <div id="imc-wrap"><div style="color:var(--muted2);font-size:11px;text-align:center;padding:10px 0;font-family:'DM Mono',monospace">Completa tus datos para ver métricas</div></div>
       </div>
 
       <!-- Mi Rutina (dropdown) -->
       <div class="psec drop-card">
         <div class="drop-header" onclick="toggleDrop('rutina-section')">
-          <span class="drop-title">MI RUTINA</span>
+          <span class="drop-title drop-title-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>MI RUTINA</span>
           <span class="drop-arrow" id="arrow-rutina-section">›</span>
         </div>
         <div class="drop-body" id="rutina-section">
@@ -139,7 +139,7 @@
       <!-- Datos personales (dropdown - configured once) -->
       <div class="psec drop-card">
         <div class="drop-header" onclick="toggleDrop('datos-section')">
-          <span class="drop-title">DATOS PERSONALES</span>
+          <span class="drop-title drop-title-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>DATOS PERSONALES</span>
           <span class="drop-arrow" id="arrow-datos-section">›</span>
         </div>
         <div class="drop-body" id="datos-section">
@@ -155,10 +155,18 @@
         </div>
       </div>
 
+      <!-- Guía del Gym -->
+      <div class="psec drop-card">
+        <div class="drop-header" onclick="openGuide()">
+          <span class="drop-title drop-title-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>GUÍA DEL GYM</span>
+          <span class="drop-arrow">›</span>
+        </div>
+      </div>
+
       <!-- App (dropdown) -->
       <div class="psec drop-card">
         <div class="drop-header" onclick="toggleDrop('app-section')">
-          <span class="drop-title">APP</span>
+          <span class="drop-title drop-title-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>APP</span>
           <span class="drop-arrow" id="arrow-app-section">›</span>
         </div>
         <div class="drop-body" id="app-section">
@@ -171,9 +179,35 @@
               <div class="backup-btn exp" onclick="exportData()"><div class="backup-lbl">EXPORTAR</div><div class="backup-sub">Guardar JSON</div></div>
               <label class="backup-btn imp" style="cursor:pointer"><div class="backup-lbl">IMPORTAR</div><div class="backup-sub">Restaurar JSON</div><input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
             </div>
+            <div class="import-tip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <div>
+                <p>¿Ya tienes una rutina? Copia el prompt, pégalo en <b>ChatGPT</b> junto con tu rutina y te devolverá un JSON para importar.</p>
+                <button class="wiz-copy-prompt" onclick="copyImportPrompt()" style="margin-top:6px">COPIAR PROMPT</button>
+              </div>
+            </div>
             <button class="install-btn" id="install-btn" onclick="installPWA()" style="display:none">INSTALAR APP</button>
             <button class="dbtn" onclick="if(confirm('Esto borrará todos tus datos y cargará datos de demo. ¿Continuar?'))loadDemo()" style="margin-top:7px;font-size:11px">CARGAR DATOS DEMO</button>
           </div>
+        </div>
+      </div>
+
+      <!-- Creador -->
+      <div class="creator">
+        <div class="creator-line"></div>
+        <div class="creator-info">
+          <span class="creator-by">Creado por</span>
+          <span class="creator-name">Jean Carlos</span>
+        </div>
+        <div class="creator-links">
+          <a href="https://www.tiktok.com/@naej_lil" target="_blank" rel="noopener" class="creator-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+            <span>TikTok</span>
+          </a>
+          <a href="https://www.instagram.com/naej_lil" target="_blank" rel="noopener" class="creator-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
+            <span>Instagram</span>
+          </a>
         </div>
       </div>
     </div>
@@ -220,15 +254,6 @@
   </div>
 </div>
 
-<!-- REST TIMER BAR -->
-<div class="timer-bar" id="timer-bar" style="display:none">
-  <div class="timer-ring" id="timer-ring"></div>
-  <span class="timer-time" id="timer-time">1:30</span>
-  <div class="timer-actions">
-    <button class="timer-skip" onclick="skipTimer()">SALTAR</button>
-    <button class="timer-add" onclick="addTimerTime(30)">+30s</button>
-  </div>
-</div>
 
 <!-- MODAL -->
 <div class="overlay" id="overlay" onclick="closeModal(event)">
@@ -256,20 +281,50 @@
       </div>
     </div>
     <div id="m-csec" style="display:none">
+      <div class="c-info-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <p>La distancia y calorías son opcionales. Si no las pones, <b>calculamos las calorías</b> según tu peso, el ejercicio y la intensidad. Es una <b>aproximación</b>, no un valor exacto.</p>
+      </div>
       <div class="cfields">
-        <div class="cfield"><div class="cflabel">Minutos</div><input class="cinput" type="number" id="c-min" placeholder="0" min="0"></div>
-        <div class="cfield"><div class="cflabel">Kilómetros</div><input class="cinput" type="number" id="c-km" placeholder="0" min="0" step="0.1"></div>
+        <div class="cfield"><div class="cflabel">Tiempo (min)</div><input class="cinput" type="number" id="c-min" placeholder="30" min="0" oninput="updateCalEstimate()"></div>
+        <div class="cfield">
+          <div class="cflabel">Intensidad</div>
+          <div class="c-intensity" id="c-intensity">
+            <div class="c-int-opt" data-val="baja" onclick="setCardioIntensity('baja')">Baja</div>
+            <div class="c-int-opt active" data-val="media" onclick="setCardioIntensity('media')">Media</div>
+            <div class="c-int-opt" data-val="alta" onclick="setCardioIntensity('alta')">Alta</div>
+          </div>
+        </div>
+      </div>
+      <div class="cfields" style="margin-top:6px">
+        <div class="cfield"><div class="cflabel">Distancia km (opcional)</div><input class="cinput" type="number" id="c-km" placeholder="—" min="0" step="0.1"></div>
+        <div class="cfield"><div class="cflabel">Calorías (opcional)</div><input class="cinput" type="number" id="c-cal" placeholder="—" min="0"><div class="c-cal-est" id="c-cal-est" style="display:none"></div></div>
       </div>
     </div>
-    <textarea class="ninput" id="nval" placeholder="Notas (opcional)..." rows="2"></textarea>
-    <button class="sbtn" onclick="saveEntry()">GUARDAR</button>
+    <div class="note-expand" id="note-expand">
+      <textarea class="ninput" id="nval" placeholder="Escribe una nota... Se guardará en tu historial y progreso." rows="2"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="note-btn" onclick="document.getElementById('note-expand').classList.toggle('open')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+      <button class="sbtn" onclick="saveEntry()">GUARDAR</button>
+    </div>
     <button class="dbtn" id="dbtn" onclick="deleteEntry()" style="display:none">BORRAR REGISTRO</button>
   </div>
 </div>
+<!-- GUÍA DEL GYM -->
+<div class="overlay" id="guide-overlay" onclick="closeGuide(event)">
+  <div class="modal" style="max-height:90dvh">
+    <div class="mhandle"></div>
+    <div class="mtitle">GUÍA DEL GYM</div>
+    <div class="msub">Todo lo que necesitas saber para empezar</div>
+    <div id="guide-content"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
-<script src="exercises-db.js?v=47"></script>
-<script src="onboarding.js?v=47"></script>
-<script src="app.js?v=47"></script>
+<script src="exercises-db.js?v=57"></script>
+<script src="onboarding.js?v=57"></script>
+<script src="app.js?v=57"></script>
 </body>
 </html>
