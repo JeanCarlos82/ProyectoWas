@@ -487,8 +487,10 @@ function showWizard(){
   const hasExisting=Object.values(db.routine).some(d=>d.exercises?.length>0);
   if(hasExisting&&localStorage.getItem('gym_onboarded')){
     if(!confirm('Esto reemplazará tu rutina actual. ¿Continuar?'))return;
+    wizardStep=1; // Skip install screen when relaunching
+  } else {
+    wizardStep=0; // Show install screen for new users
   }
-  wizardStep=1;
   wizardData={name:db.profile.name||'',age:db.profile.age||'',sex:db.profile.sex||'H',height:db.profile.height||'',weight:db.profile.weight||'',activityLevel:db.profile.activityLevel??2,goal:null,experience:null,selectedDays:[],mode:null};
   document.getElementById('wizard-overlay').style.display='flex';
   renderWizardStep();
@@ -503,6 +505,42 @@ function hideWizard(){
 function renderWizardStep(){
   const container=document.getElementById('wizard-content');
   const dots=document.getElementById('wizard-dots');
+
+  // Step 0: Install screen (no dots)
+  if(wizardStep===0){
+    const isInstalled=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+    dots.innerHTML='';
+    if(isInstalled){
+      // Already installed as PWA, skip to step 1
+      wizardStep=1;
+      renderWizardStep();
+      return;
+    }
+    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+    const iosSteps=`<div class="wiz-install-steps">
+      <div class="wiz-is"><span class="wiz-is-n">1</span>Toca el botón de <b>compartir</b> <span style="font-size:16px">⎙</span> en Safari</div>
+      <div class="wiz-is"><span class="wiz-is-n">2</span>Selecciona <b>"Añadir a pantalla de inicio"</b></div>
+      <div class="wiz-is"><span class="wiz-is-n">3</span>Toca <b>"Añadir"</b> y abre la app desde tu pantalla</div>
+    </div>`;
+    const androidSteps=`<div class="wiz-install-steps">
+      <div class="wiz-is"><span class="wiz-is-n">1</span>Toca los <b>tres puntos ⋮</b> en Chrome</div>
+      <div class="wiz-is"><span class="wiz-is-n">2</span>Selecciona <b>"Instalar app"</b> o <b>"Añadir a pantalla de inicio"</b></div>
+      <div class="wiz-is"><span class="wiz-is-n">3</span>Abre la app desde tu pantalla de inicio</div>
+    </div>`;
+    container.innerHTML=`
+      <div class="wiz-install-ico">${_svg}<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="wiz-title">Antes de empezar</div>
+      <div class="wiz-subtitle">Para que tus datos se guarden correctamente, te recomendamos <b>instalar la app</b> en tu teléfono</div>
+      ${isIOS?iosSteps:androidSteps}
+      <div class="wiz-install-note">
+        ${_svg}<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <p>Si haces el cuestionario en el navegador y luego instalas, <b>tendrás que repetirlo</b>. Instálala primero.</p>
+      </div>
+      <button class="sbtn" onclick="wizardStep=1;renderWizardStep()" style="margin-top:16px">YA LA INSTALÉ</button>
+      <button class="wiz-skip-btn" onclick="wizardStep=1;renderWizardStep()">Continuar sin instalar</button>`;
+    return;
+  }
+
   const totalDots=wizardData.mode==='auto'?6:wizardData.mode==='manual'?3:1;
   const dotStep=wizardStep>totalDots?totalDots:wizardStep;
   dots.innerHTML=Array.from({length:totalDots},(_,i)=>i+1).map(n=>`<span class="wiz-dot ${n===dotStep?'active':''}${n<dotStep?' done':''}"></span>`).join('');
