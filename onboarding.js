@@ -491,7 +491,8 @@ function showWizard(){
   } else {
     wizardStep=0; // Show install screen for new users
   }
-  wizardData={name:db.profile.name||'',age:db.profile.age||'',sex:db.profile.sex||'H',height:db.profile.height||'',weight:db.profile.weight||'',activityLevel:db.profile.activityLevel??2,goal:null,experience:null,selectedDays:[],mode:null};
+  const objToGoal={hipertrofia:'musculo',fuerza:'fuerza',resistencia:'grasa'};
+  wizardData={name:db.profile.name||'',age:db.profile.age||'',sex:db.profile.sex||'H',height:db.profile.height||'',weight:db.profile.weight||'',activityLevel:db.profile.activityLevel??2,goal:objToGoal[db.objective]||null,experience:null,selectedDays:[],mode:null};
   document.getElementById('wizard-overlay').style.display='flex';
   renderWizardStep();
 }
